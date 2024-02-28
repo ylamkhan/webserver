@@ -1,0 +1,77 @@
+servers:
+  - listen:
+    server_name: youssef
+    port: 8080
+    host: 127.0.0.1
+    root: www/docs
+    error_pages:
+      - 404: /error_pages/404.html
+      - 500: /error_pages/500.html
+    autoindex: on
+    methods: [GET, POST, DELETE]
+    return: https://google.com
+    index: [index.html, index1.html]
+    cgi_paths:
+      - [.py, /usr/bin/python3]
+      - [.php, /usr/bin/php-cgi]
+      - [.sh, /usr/bin/bash]
+
+    locations:
+      - path: "/"
+        root: www/
+        upload: ON
+        autoindex: on
+        methods: [GET]
+        index: [index.html]
+        error_pages:
+          - 404: /error_pages/404.html
+          - 500: /error_pages/500.html
+        cgi_paths:
+          - [.py, /usr/bin/python3]
+          - [.php, /usr/bin/php-cgi]
+          - [.sh, /usr/bin/bash]
+        proxy_read_timeout: 5s
+        return: https://google.com
+
+      - path: "/static"
+        root: www/static
+        methods: [GET]
+        autoindex: on
+
+  - listen:
+    server_name: zineb
+    port: 8081
+    host: 127.0.0.1
+    root: www/
+    client_max_body_size: 2g
+
+    locations:
+      - path: "/cgi-bin"
+        root: www
+        autoindex: on
+        methods: [POST]
+        cgi_paths:
+          - [.php, /usr/bin/php-cgi]
+        proxy_read_timeout: 5s
+
+      - path: "/api"
+        root: www/api
+        methods: [GET, POST]
+
+  - listen:
+    server_name: yousra
+    port: 8082
+    host: 127.0.0.1
+    root: www/
+
+    locations:
+      - path: "/uploads"
+        root: www/uploads
+        methods: [DELETE]
+        upload: ON
+        autoindex: on
+
+      - path: "/downloads"
+        root: www/downloads
+        methods: [GET]
+        autoindex: on

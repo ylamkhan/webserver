@@ -1,0 +1,27 @@
+servers:
+  - listen:
+    server_name: youssef
+    port: 5000
+    host: localhost
+    root: www/docs
+    error_pages:
+      - 404: /error_pages/404.html
+      - 500: /error_pages/500.html
+
+    locations:
+      - path: "/"
+        root: www/
+        upload: on
+        autoindex: on
+        methods: [GET]
+        index: [index.html]
+        cgi_paths:
+          - [.py, /usr/bin/python3]
+          - [.php, /usr/bin/php-cgi]
+          - [.sh, /usr/bin/bash]
+        proxy_read_timeout: 5s
+
+      - path: "/static"
+        root: www/static
+        methods: [GET]
+        autoindex: on
