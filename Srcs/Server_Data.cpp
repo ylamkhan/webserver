@@ -45,6 +45,7 @@ Server &Server::operator=(const Server &other) {
         errorPagesSet = other.errorPagesSet;
         redirUrlSet = other.redirUrlSet;
         autoIndexSet = other.autoIndexSet;
+        // sizel = other.sizel;
     }
     return (*this);
 }

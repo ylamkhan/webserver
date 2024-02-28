@@ -21,6 +21,7 @@ class Server {
         size_t client_max_body_size;
         std::string host;
         std::vector<Location> locations;
+        // size_t      sizel;
 
         bool hostSet;
         bool serverNamesSet;

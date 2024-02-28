@@ -32,11 +32,23 @@ class Client {
         std::string path;
         std::string httpVersion;
         std::map<std::string, std::string>headers;
+        std::map<std::string, std::string>mime_type;
         std::string body;
         std::string requestStr;
         size_t content_len;
         size_t bodySize;
+        size_t hexSize;
 
+        int port;
+        std::string host;
+        std::string URL;
+        ///
+        std::string name_type;
+        std::string value_type;
+        size_t chunks_size; // find 
+        std::string stock; // copy 
+        std::string lichat;
+        std::string chunks;
     public:
         Client(){};
         Client(std::vector<Server> &servers);
@@ -61,6 +73,8 @@ class Client {
         void    setReqStr(std::string s);
         void    handl_methodes();
         int     matching_servers();
+        void setPortHost(std::string headerValue);
+        void	store_type(void);
 };
 
 #endif

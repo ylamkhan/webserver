@@ -16,7 +16,7 @@ Socket::Socket(const std::vector<Server>& servers):servers(servers)
             throw std::runtime_error("Failed to create socket");
         }
         int opt = 1;
-        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
+        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1 || setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
             close(sockfd);
             throw std::runtime_error("Failed to set socket options");
         }
@@ -98,7 +98,8 @@ void Socket::handleConnections()
     
                     char buffer[1024] = {0};
                     ssize_t   bytesRead = recv(events[i].data.fd, buffer, 1023,0);
-                
+                    // bodysize += bytesRead;
+                    // body += buffer;
                     if (bytesRead == 0 || bytesRead == -1)
                     {
                         std::cerr << "Error reading from client\n";
