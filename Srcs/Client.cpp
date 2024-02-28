@@ -91,7 +91,6 @@ void    Client::parseRequest(const std::string& httpRequest)
              std::string headerName, headerValue;  
             std::getline(iss,headerName,':');
             std::getline(iss,headerValue);
-            std::cout << headerName << "--" << headerValue << std::endl;
             headers[headerName] = ltrim(headerValue);
             pos = end + 2;
         }
@@ -111,8 +110,6 @@ void    Client::parseRequest(const std::string& httpRequest)
 
 int Client::matching_servers()
 {
-   ConfigParser config;
-   config.getServers();
    std::cout<<servers.size()<<"********\n";
    return 1;
 }
@@ -140,7 +137,7 @@ void   Client::handl_methodes()
     else
     {
         flag_in_out = true;
-        std::cerr<<"Error: not found method\n";
+        std::cerr<<"Error: not found method******\n";
         return ;
     }
 }

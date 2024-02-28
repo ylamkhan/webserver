@@ -75,6 +75,14 @@ void Socket::handleConnections()
                 setMapClient(clientfd, c);
                 if (clientfd == -1)
                     throw std::runtime_error("Failed to accept connection");
+                // int flags;
+                // flags = fcntl (clientfd, F_GETFL, 0);
+                // if(flags == -1)
+                //      throw std::runtime_error("Failed to fcntl");
+                // flags |= O_NONBLOCK;
+                // flags = fcntl(clientfd, F_SETFL, flags);
+                // if(flags == -1)
+                //      throw std::runtime_error("Failed to fcntl");
                 event.events = EPOLLIN | EPOLLOUT;
                 event.data.fd = clientfd;
                 if (epoll_ctl(epollfd, EPOLL_CTL_ADD, clientfd, &event) == -1)
