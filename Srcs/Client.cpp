@@ -99,6 +99,11 @@ Client &Client::operator=(Client const &other)
     servers = other.servers;
     value_type = other.value_type;
     transfer_encoding = other.transfer_encoding;
+    store = other.store; 
+    save = other.save;
+    shinka = other.shinka;
+    sab = other.sab;
+    ss = other.ss;
     return *this;
 }
 
@@ -140,8 +145,6 @@ void    Client::parseRequest(const std::string& httpRequest)
     if (!headerSet && requestStr.find("\r\n\r\n", 0) != std::string::npos)
     {
        
-        
-
         size_t pos = 0;
         size_t end = 0;
         size_t ch = requestStr.find("\r\n\r\n");
@@ -173,28 +176,28 @@ void    Client::parseRequest(const std::string& httpRequest)
         }
         if(method == "POST")
             open_file();
-        
-    //hna kanet pos blast ch;
-        // if(transfer_encoding) kayen
-        
         std::string hel = requestStr.substr(ch);
         chunks_size = hel.find("\r\n");
         if(chunks_size != std::string::npos)
         {
             chunks = hel.substr(0, chunks_size);
             hexSize = hexa_to_dec(chunks);
+            store_hexSize = hexa_to_dec(chunks);
         }
+        body = requestStr.substr(ch );
+
         std::map<std::string, std::string >::iterator it;
         it = headers.find("Transfer-Encoding");
         if( it != headers.end())
         {   
             transfer_encoding  = it->second;
             if(transfer_encoding == "chunked")
-            body = requestStr.substr(ch + chunks.size() + 2); // chunks
+            {
+                body = requestStr.substr(ch + chunks.size() + 2); // chunks
+                ss = "\r\n" + chunks + "\r\n";
 
+            }
         }
-        body = requestStr.substr(ch );
-
         headerSet = true;
     }
     else
@@ -291,33 +294,44 @@ void   Client::handl_methodes()
         //chunked
         if(transfer_encoding == "chunked")
         {
-            if(hexSize > body.size())
-            { 
-                std::string ss = "\r\n" + chunks + "\r\n";
-                if(body.find(ss) != std::string::npos)
+            if(store_hexSize > body.size())
+            {
+              std::cout << body  << "\n";
+                if(save.size() <= hexSize)
                 {
+                    save += body;
 
-                    std::string strime =fonction_to_strime(body, ss);
-                    body.clear();
-                    body = strime;
                 }
-                
-                if(body.find("\r\n0\r\n") != std::string::npos)
+                if(save.size() > hexSize)
                 {
-                    std::string put = body.substr(0,body.find("\r\n0\r\n"));
-                    body.clear();
-                    body = put;
+                    store = save.substr(0, hexSize);
+                    file.write(store.c_str(), store.size());
+                    std::string sub2 = save.substr(hexSize);
+                    size_t posa1 = sub2.find("\r\n");
+                    size_t posa2;
+                    if(posa1 != std::string::npos)
+                    {
+                        posa2 = sub2.find("\r\n", posa1 + 2 );
+                        if(posa2 != std::string::npos)
+                        {
+                            shinka = sub2.substr(posa1 + 2, posa2 - posa1 - 2);
+                            hexSize = hexa_to_dec(shinka);
+                        }
+                    }
+                    sab = sub2.substr(posa2 + 2);
+                    save.clear();
+                    save += sab;
                 }
-                file.write(body.c_str(), body.size());
                 bodySize += body.size();
                 if(bodySize >= (size_t)atoi(headers["Content-Length"].c_str()))
                 {
-                
+                   
                     file.write(body.c_str(), body.size());
                     flag_in_out = true;
                     file.close();
                     return;
                 }
+            
             }
             else 
             {
@@ -338,8 +352,6 @@ void   Client::handl_methodes()
                 }
             }
         }
-        // ///// bouandry
-
         else // binary
         { 
             bodySize += body.size();
@@ -387,7 +399,7 @@ void Client::open_file()
     // {
     //     std::string form_data = it->second;
     // }
-     store_type();
+    store_type();
     std::string extension;
     std::map<std::string, std::string>::iterator at;
     at = mime_type.find(value_type);

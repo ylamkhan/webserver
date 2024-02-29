@@ -38,6 +38,7 @@ class Client {
         size_t content_len;
         size_t bodySize;
         size_t hexSize;
+        size_t store_hexSize;
 
         int port;
         std::string host;
@@ -47,6 +48,12 @@ class Client {
         size_t chunks_size; // find 
         std::string chunks;
         std::string transfer_encoding;
+        std::string ss;
+        std::string save;
+        std::string store;
+        std::string shinka;
+        ////
+        std::string sab;
     public:
         Client(){};
         Client(std::vector<Server> &servers);
