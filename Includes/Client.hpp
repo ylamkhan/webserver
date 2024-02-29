@@ -43,7 +43,6 @@ class Client {
         std::string host;
         std::string URL;
         ///
-        std::string name_type;
         std::string value_type;
         size_t chunks_size; // find 
         std::string stock; // copy 

@@ -97,7 +97,6 @@ Client &Client::operator=(Client const &other)
     content_len = other.content_len;
     bodySize = other.bodySize;
     servers = other.servers;
-    name_type = other.name_type;
     value_type = other.value_type;
     return *this;
 }
@@ -140,6 +139,7 @@ void    Client::parseRequest(const std::string& httpRequest)
     if (!headerSet && requestStr.find("\r\n\r\n", 0) != std::string::npos)
     {
        
+        
 
         size_t pos = 0;
         size_t end = 0;
@@ -148,11 +148,9 @@ void    Client::parseRequest(const std::string& httpRequest)
         {
             ch = ch + 4;
         }
-        // transfer chunked;
         end = requestStr.find(' ');
         method = requestStr.substr(pos, end - pos);
-        if(method == "POST")
-            open_file();
+        //// 
         pos = end + 1;
         end = requestStr.find(' ', pos);
         path = requestStr.substr(pos, end - pos);
@@ -168,24 +166,27 @@ void    Client::parseRequest(const std::string& httpRequest)
             std::getline(iss,headerName,':');
             std::getline(iss,headerValue);
             headers[headerName] = ltrim(headerValue);
+            {
+            
+            }
             pos = end + 2;
             if(headerName == "Host")
                 setPortHost(headerValue);
         }
+        if(method == "POST")
+            open_file();
         
     //hna kanet pos blast ch;
-        body = requestStr.substr(ch);
-    
-
         // if(transfer_encoding) kayen
-        chunks_size = body.find("\r\n");
+        
+        std::string hel = requestStr.substr(ch);
+        chunks_size = hel.find("\r\n");
         if(chunks_size != std::string::npos)
         {
-            chunks = body.substr(0, 5);
+            chunks = hel.substr(0, chunks_size);
             hexSize = hexa_to_dec(chunks);
-
         }
-        body = requestStr.substr(pos);
+        body = requestStr.substr(ch + chunks.size() + 2);
         headerSet = true;
     }
     else
@@ -250,6 +251,21 @@ int Client::matching_servers()
    return 1;
 }
 
+
+std::string fonction_to_strime(std::string str, std::string substr)
+{
+
+    std::string result = str;
+    std::size_t pos = std::string::npos;
+    
+    while ((pos = result.find(substr)) != std::string::npos)
+    {
+        result.erase(pos, substr.length());
+    }
+    
+    return result;
+}
+
 void   Client::handl_methodes()
 {
     if(method == "GET")
@@ -258,37 +274,77 @@ void   Client::handl_methodes()
     }
     if(method == "POST")
     {
-        // std::string transfer_encoding = "chunked";
-        // if(transfer_encoding == "chunked")
-        // {
-        //     if(hexSize > body.size())
-        //     {
-        //         std::size_t pos = body.find("\r\n10000");
-        //         if( pos!= std::string::npos)
-        //         {
-        //             stock.append(body.substr(0, pos), pos);// append 
-        //             lichat.append(body.substr( pos + 9));///
-        //             file.write(stock.c_str(), stock.size());
-        //             stock.clear();
-        //             stock.append(lichat, lichat.size());
-        //             lichat.clear();
-        //         }
-        //         else 
-        //         {
-        //             stock.append(body, body.size());
-        //         }
+        
+        std::string transfer_encoding = "chunked";
+        if(transfer_encoding == "chunked")
+        {
+            if(hexSize > body.size())
+            { 
+                std::string ss = "\r\n" + chunks + "\r\n";
+                if(body.find(ss) != std::string::npos)
+                {
+
+                    std::string strime =fonction_to_strime(body, ss);
+                    body.clear();
+                    body = strime;
+                }
+                
+                if(body.find("\r\n0\r\n") != std::string::npos)
+                {
+                    std::string put = body.substr(0,body.find("\r\n0\r\n"));
+                    body.clear();
+                    body = put;
+                }
+                file.write(body.c_str(), body.size());
                 bodySize += body.size();
                 if(bodySize >= (size_t)atoi(headers["Content-Length"].c_str()))
                 {
-                    std::cout << body << "\n";
+                
+                    file.write(body.c_str(), body.size());
                     flag_in_out = true;
                     file.close();
                     return;
                 }
-        //     }  
-        // }  
+            }
+            else 
+            {
+                bodySize += body.size();
+                if(body.find("\r\n0\r\n") != std::string::npos)
+                {
+                    std::string put = body.substr(0,body.find("\r\n0\r\n"));
+                    body.clear();
+                    body = put;
+                }
+                 if(bodySize >= (size_t)atoi(headers["Content-Length"].c_str()))
+                {
+                
+                    file.write(body.c_str(), body.size());
+                    flag_in_out = true;
+                    file.close();
+                    return;
+                }
+            }
+        }
+        /////// bouandry
     
-    }
+        //  if ()
+        // {
+
+        // }
+        // else // binary
+        // {
+                // file.write(body.c_str(), body.size());
+                // bodySize += body.size();
+                // if(bodySize >= (size_t)atoi(headers["Content-Length"].c_str()))
+                // {
+                //     //file.write(body.c_str(), body.size());
+                //     flag_in_out = true;
+                //     file.close();
+                //     return;
+                // }
+        // }
+    }  
+      
     else if (method == "DELETE")
     {
         flag_in_out = true;
@@ -302,22 +358,31 @@ void   Client::handl_methodes()
 }
 
 
+
 void Client::open_file()
 {
-    // store_type();
-    // std::string extension;
-    // std::map<std::string, std::string>::iterator it;
-    // it = mime_type.find("video/mp4");
-    // if( it != mime_type.end())
-    // {
-    //     extension = it->second;
-    // }
+    
+ 
+        std::map<std::string, std::string >::iterator it;
+        it = headers.find("Content-Type");
+        if( it != headers.end())
+        {   
+            value_type  = it->second;
+        }
+     store_type();
+    std::string extension;
+    std::map<std::string, std::string>::iterator at;
+    at = mime_type.find(value_type);
+    if( at != mime_type.end())
+    {
+        extension = at->second;
+    }
     std::string name;
     
     if (!flag_open)
     {
         name_file += "t";
-        name = "Srcs/upload/" + name_file + ".jpeg";  
+        name = "Srcs/upload/" + name_file + extension;  
         file.open(name.c_str(), std::ios::app);
         flag_open = true;
     }
@@ -389,28 +454,3 @@ void Client::setReqStr(std::string s) {
 
 
 
-
-
-
-
-// size = 10;
-
-// size -= 2.;
-
-
-
-// \r\n5\r\n
-// 12
-
-
-
-
-
-// /*
-
-
-// 34
-// \r\n0\r\n\r\n
-
-
-// */
