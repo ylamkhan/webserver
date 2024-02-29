@@ -45,9 +45,8 @@ class Client {
         ///
         std::string value_type;
         size_t chunks_size; // find 
-        std::string stock; // copy 
-        std::string lichat;
         std::string chunks;
+        std::string transfer_encoding;
     public:
         Client(){};
         Client(std::vector<Server> &servers);

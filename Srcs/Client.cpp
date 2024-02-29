@@ -98,6 +98,7 @@ Client &Client::operator=(Client const &other)
     bodySize = other.bodySize;
     servers = other.servers;
     value_type = other.value_type;
+    transfer_encoding = other.transfer_encoding;
     return *this;
 }
 
@@ -166,9 +167,6 @@ void    Client::parseRequest(const std::string& httpRequest)
             std::getline(iss,headerName,':');
             std::getline(iss,headerValue);
             headers[headerName] = ltrim(headerValue);
-            {
-            
-            }
             pos = end + 2;
             if(headerName == "Host")
                 setPortHost(headerValue);
@@ -186,7 +184,17 @@ void    Client::parseRequest(const std::string& httpRequest)
             chunks = hel.substr(0, chunks_size);
             hexSize = hexa_to_dec(chunks);
         }
-        body = requestStr.substr(ch + chunks.size() + 2);
+        std::map<std::string, std::string >::iterator it;
+        it = headers.find("Transfer-Encoding");
+        if( it != headers.end())
+        {   
+            transfer_encoding  = it->second;
+            if(transfer_encoding == "chunked")
+            body = requestStr.substr(ch + chunks.size() + 2); // chunks
+
+        }
+        body = requestStr.substr(ch );
+
         headerSet = true;
     }
     else
@@ -274,8 +282,13 @@ void   Client::handl_methodes()
     }
     if(method == "POST")
     {
-        
-        std::string transfer_encoding = "chunked";
+        std::map<std::string, std::string >::iterator it;
+        it = headers.find("Transfer-Encoding");
+        if( it != headers.end())
+        {   
+            transfer_encoding  = it->second;
+        }
+        //chunked
         if(transfer_encoding == "chunked")
         {
             if(hexSize > body.size())
@@ -325,24 +338,23 @@ void   Client::handl_methodes()
                 }
             }
         }
-        /////// bouandry
-    
-        //  if ()
-        // {
+        // ///// bouandry
 
-        // }
-        // else // binary
-        // {
-                // file.write(body.c_str(), body.size());
-                // bodySize += body.size();
-                // if(bodySize >= (size_t)atoi(headers["Content-Length"].c_str()))
-                // {
-                //     //file.write(body.c_str(), body.size());
-                //     flag_in_out = true;
-                //     file.close();
-                //     return;
-                // }
-        // }
+        else // binary
+        { 
+            bodySize += body.size();
+            file.write(body.c_str(), body.size());
+            if(bodySize   >= (size_t)atoi(headers["Content-Length"].c_str()))
+                {
+                    
+                    file.write(body.c_str(), body.size());
+                    flag_in_out = true;
+                    file.close();
+                    return;
+                }
+
+              
+        }
     }  
       
     else if (method == "DELETE")
@@ -369,6 +381,12 @@ void Client::open_file()
         {   
             value_type  = it->second;
         }
+    // compare // bouandry 
+    //    int result = str1.compare(0, 6, str2, 0, 6);
+    // if(value_type.compare("multipart/form-data") ==  0)// kayna
+    // {
+    //     std::string form_data = it->second;
+    // }
      store_type();
     std::string extension;
     std::map<std::string, std::string>::iterator at;
@@ -378,7 +396,6 @@ void Client::open_file()
         extension = at->second;
     }
     std::string name;
-    
     if (!flag_open)
     {
         name_file += "t";
