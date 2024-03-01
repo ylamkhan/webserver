@@ -8,6 +8,26 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+// typename check if ... 
+#include <map>
+#include <fstream>
+#include <string>
+#include <iostream>
+#include <unistd.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+#include<dirent.h>
+#include <filesystem>
 #include "../Includes/Server_Data.hpp"
 #include "../Includes/ConfigParser.hpp"
 
