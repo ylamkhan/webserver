@@ -9,8 +9,7 @@ Socket::Socket(const std::vector<Server>& servers):servers(servers)
     if (epollfd == -1) {
         throw std::runtime_error("Failed to create epoll instance");
     }
-    for (std::vector<Server>::const_iterator it = servers.begin(); it != servers.end(); ++it) {
-        const Server& server = *it;
+    for (size_t i = 0; i < servers.size(); i++) {
         int sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd == -1) {
             throw std::runtime_error("Failed to create socket");
@@ -22,8 +21,8 @@ Socket::Socket(const std::vector<Server>& servers):servers(servers)
         }
         sockaddr_in addr;
         addr.sin_family = AF_INET;
-        addr.sin_port = htons(server.getPort());
-        if (inet_pton(AF_INET, server.getHost().c_str(), &addr.sin_addr) != 1) {
+        addr.sin_port = htons(servers[i].getPort());
+        if (inet_pton(AF_INET, servers[i].getHost().c_str(), &addr.sin_addr) != 1) {
             close(sockfd);
             throw std::runtime_error("Invalid host or server name");
         }
@@ -42,6 +41,7 @@ Socket::Socket(const std::vector<Server>& servers):servers(servers)
             throw std::runtime_error("Failed to add sockfd to epoll");
         }
         serverSockets.push_back(sockfd);
+        mapServers[sockfd] = i;
     }
   
                     
@@ -72,6 +72,7 @@ void Socket::handleConnections()
                 int clientfd = accept(sockfd, reinterpret_cast<sockaddr*>(&clientAddr), &clientLen);
                 Client c(servers);
                 c.setFd(clientfd);
+                c.setSindex(mapServers[sockfd]);
                 setMapClient(clientfd, c);
                 if (clientfd == -1)
                     throw std::runtime_error("Failed to accept connection");
@@ -98,8 +99,6 @@ void Socket::handleConnections()
     
                     char buffer[1024] = {0};
                     ssize_t   bytesRead = recv(events[i].data.fd, buffer, 1023,0);
-                    // bodysize += bytesRead;
-                    // body += buffer;
                     if (bytesRead == 0 || bytesRead == -1)
                     {
                         std::cerr << "Error reading from client\n";

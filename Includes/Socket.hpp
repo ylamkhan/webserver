@@ -26,6 +26,7 @@ class Socket
         epoll_event event;
         std::vector<int> serverSockets;
         std::map<int, Client> mapClient;
+        std::map<int, int> mapServers;
 
     public:
         Socket &operator=(Socket const &other);

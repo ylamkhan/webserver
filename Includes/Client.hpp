@@ -39,6 +39,8 @@ class Client {
         size_t bodySize;
         size_t hexSize;
         size_t store_hexSize;
+        size_t sindex;
+        size_t status;
 
         int port;
         std::string host;
@@ -54,6 +56,7 @@ class Client {
         std::string shinka;
         ////
         std::string sab;
+        std::string reqURL;
     public:
         Client(){};
         Client(std::vector<Server> &servers);
@@ -80,6 +83,8 @@ class Client {
         int     matching_servers();
         void setPortHost(std::string headerValue);
         void	store_type(void);
+        void    setSindex(size_t i);
+        int     mattching(std::string url, std::string pathloc);
 };
 
 #endif

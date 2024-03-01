@@ -72,6 +72,7 @@ unsigned int hexa_to_dec(const std::string& str) {
 
 Client::Client(std::vector<Server> &servers):servers(servers)
 {
+    sindex = 0;
     flag_in_out = false;
     flag_open = false;
     bodySize = 0;
@@ -104,6 +105,7 @@ Client &Client::operator=(Client const &other)
     shinka = other.shinka;
     sab = other.sab;
     ss = other.ss;
+    sindex = other.sindex;
     return *this;
 }
 
@@ -138,8 +140,6 @@ std::string& ltrim(std::string& str) {
 
 void    Client::parseRequest(const std::string& httpRequest)
 {
-   
- 
     if (!headerSet)
         setReqStr(httpRequest);
     if (!headerSet && requestStr.find("\r\n\r\n", 0) != std::string::npos)
@@ -204,14 +204,115 @@ void    Client::parseRequest(const std::string& httpRequest)
     {
         body = httpRequest;
     }
-    // if(!matching_servers())
-    // {
-    //     flag_in_out = true;
-    //     std::cerr<<"Error: not found location\n";
-    //     return ;
-    // }
+    if(!matching_servers())
+    {
+        flag_in_out = true;
+        std::cerr<<"Error: not found location\n";
+        return ;
+    }
     handl_methodes();
 }
+
+std::string check_block(std::string s)
+{
+    std::string tmp;
+    std::istringstream iss(s);
+    if (s == "" || s == "/")
+        return "";
+    std::getline(iss, tmp, '/');
+    return tmp;
+}
+int Client::matching_servers()
+{
+    std::vector<Location> vecl = servers[sindex].getLocations();
+    int matched = 0;
+    std::string block = "/" + check_block(path.substr(1));
+    std::string sub = path.substr(block.size());
+    std::string c;
+    bool rl = 0;
+    int index = 0;
+    std::string root;
+
+    while (!matched)
+    {
+        for (size_t j = 0; j < vecl.size(); j++)
+        {
+            std::string p = vecl[j].getLocationPath();
+            if (p == "/")
+            {
+                rl = 1;
+                index = j;
+            }
+            if(mattching(block, p))
+            {
+                root = vecl[j].getRoot();
+                if (root[root.size()-1] == '/')
+                    reqURL = root + path.substr(block.size()+1);
+                else
+                    reqURL = root + path.substr(block.size()); 
+                matched = 1;
+                return 1;
+            }
+        }
+        c = check_block(sub.substr(1));
+        if (c == "")
+        {
+            if (rl)
+            {
+                root = vecl[index].getRoot();
+                if (root[root.size()-1] == '/')
+                    reqURL = root + path.substr(1);
+                else
+                    reqURL = root + path;
+                return 1;
+            }
+            else
+                return 0;
+        }
+        block = block + "/" + c;
+        sub = sub.substr(c.size());
+    }
+    return 0;
+}
+
+// bool isLocationMatch(std::string location, std::string url)
+// {
+//     if(location[location.size()-1] != '/')
+//         location.push_back('/');
+//     if(url[url.size()-1] != '/')
+//         url.push_back('/');
+//     if(url.find(location) != std::string::npos)
+//         return 1;
+//     return 0;
+// }
+
+// void replaceHomeWithPath(std::string &url, std::string homeSubstring, std::string root)
+// {
+
+//     size_t pos = url.find(homeSubstring);
+//     std::cout<<homeSubstring<<"\n";
+//     if (pos != std::string::npos)
+//         url.replace(pos, homeSubstring.length(),root);
+// }
+
+// int Client::matching_servers()
+// {
+//     std::vector<Location> vecl = servers[sindex].getLocations();
+//     for (size_t j = 0; j < vecl.size(); j++)
+//     {
+//         if(isLocationMatch(vecl[j].getLocationPath(), path))
+//         {
+//             std::string root = vecl[j].getRoot();
+//             if(root[root.size()-1] == '/')
+//                root.erase(root.size()-1, 1);
+//             replaceHomeWithPath(path,vecl[j].getLocationPath(),root);
+//             std::cout<<path<<"      *********************\n";
+//             return 1;
+//         }
+//     }
+//     return 0;
+// }
+
 
 void Client::setPortHost(std::string headerValue)
 {
@@ -220,46 +321,13 @@ void Client::setPortHost(std::string headerValue)
     iss>>port;
 }
 
-
-int Client::matching_servers()
+int Client::mattching(std::string url, std::string pathloc)
 {
-    
-    // size_t i = 0 ;
-    // for (size_t i = 0; i < servers.size();i++)
-    // {
-    //     if(servers[i].getPort() != port || servers[i].getHost() != host)
-    //         break;
-    //     i++;
-    // }
-    // if(i != servers.size())
-    // {
-    //     for (size_t i = 0; i < servers.size(); i++)
-    //     {
-    //         if(servers[i].getPort()==port && servers[i].getHost() == host)
-    //         {
-    //             for (std::vector<Location>::iterator itl = servers[i].getLocations().begin(); itl != servers[i].getLocations().end(); ++itl)
-    //             {
-    //                 //std::cout<<*(it->getLocations().begin())<<"\n";
-    //                 std::cout<<"Path: location---->"<<itl->getRoot()<<"\n";
-    //                 //std::cout<<it->getLocations().size();
-    //                 exit(0);
-    //             }
-                
-    //         }
-    //     }
-    // }
-    // else
-    // {
-
-    // }
-    
-    
-//    std::cout<<servers.size()<<"\n";
-//    std::cout<<host<<":";
-//    std::cout<<port<<"\n";
-
-   
-   return 1;
+    if (pathloc[0] != '/')
+        pathloc = "/" + pathloc;
+    if (url == pathloc)
+        return 1;
+    return 0;
 }
 
 
@@ -279,11 +347,11 @@ std::string fonction_to_strime(std::string str, std::string substr)
 
 void   Client::handl_methodes()
 {
-    if(method == "GET")
+    if (method == "GET")
     {
         flag_in_out = true;
     }
-    if(method == "POST")
+    else if (method == "POST")
     {
         std::map<std::string, std::string >::iterator it;
         it = headers.find("Transfer-Encoding");
@@ -421,6 +489,9 @@ void Client::setFd(int fd) {
     sockfd = fd;
 }
 
+void    Client::setSindex(size_t i) {
+    sindex = i;
+}
 
 bool Client::get_flag_in_out() const{
     return flag_in_out;
