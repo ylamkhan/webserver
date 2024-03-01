@@ -1,8 +1,6 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include "../Includes/httpRequest.hpp"
-
 #include <string>
 #include <map>
 #include <iostream>
@@ -101,10 +99,16 @@ class Client {
         void    setReqStr(std::string s);
         void    handl_methodes();
         int     matching_servers();
-        void setPortHost(std::string headerValue);
+        void    setPortHost(std::string headerValue);
         void	store_type(void);
         void    setSindex(size_t i);
         int     mattching(std::string url, std::string pathloc);
+        unsigned int hexa_to_dec(const std::string& str);
+        std::string& ltrim(std::string& str);
+
+        void post();
+        void get();
+        void web_delete();
 };
 
 #endif

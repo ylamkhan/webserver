@@ -9,7 +9,6 @@
 #include <map>
 #include "../Includes/Server_Data.hpp"
 #include "../Includes/Client.hpp"
-#include "../Includes/httpRequest.hpp"
 #include "../Includes/httpResponse.hpp"
 
 #define  maxEvents  10

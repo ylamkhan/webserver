@@ -43,7 +43,7 @@ class ConfigParser {
         void saveSMethods(Server &server, std::vector<std::string> &lines, size_t *i);
         void saveSIndex(Server &server, std::vector<std::string> lines, size_t *i);
         void saveSAutoindex(Server &server, std::vector<std::string> &lines, size_t *i);
-
+        
         std::vector<Server> &getServers();
         
 };

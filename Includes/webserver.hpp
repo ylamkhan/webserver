@@ -27,7 +27,6 @@
 #include "../Includes/Socket.hpp"
 #include "../Includes/Server_Data.hpp"
 #include "../Includes/Client.hpp"
-#include "../Includes/httpRequest.hpp"
 #include "../Includes/httpResponse.hpp"
 #include "../Includes/ConfigParser.hpp"
 #include "../Includes/Location.hpp"
