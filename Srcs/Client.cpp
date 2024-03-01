@@ -140,10 +140,7 @@ std::string& ltrim(std::string& str) {
 
 void    Client::parseRequest(const std::string& httpRequest)
 {
-     std::cout << "-----------------------------------------------------------------------\n";
-    std::cout << httpRequest << "\n";
-    std::cout << "-----------------------------------------------------------------------\n";
-
+  
     if (!headerSet)
         setReqStr(httpRequest);
     if (!headerSet && requestStr.find("\r\n\r\n", 0) != std::string::npos)
@@ -230,8 +227,18 @@ int Client::matching_servers()
 {
     std::vector<Location> vecl = servers[sindex].getLocations();
     int matched = 0;
-    std::string block = "/" + check_block(path.substr(1));
-    std::string sub = path.substr(block.size());
+    std::string block;
+    std::string sub;
+    if (path == "/")
+    {
+        block = "/";
+        sub = "";
+    }
+    else 
+    {
+        block = "/" + check_block(path.substr(1));
+        sub = path.substr(block.size());
+    }
     std::string c;
     bool rl = 0;
     int index = 0;
@@ -253,7 +260,7 @@ int Client::matching_servers()
                 if (root[root.size()-1] == '/')
                     reqURL = root + path.substr(block.size()+1);
                 else
-                    reqURL = root + path.substr(block.size()); 
+                    reqURL = root + path.substr(block.size());
                 matched = 1;
                 return 1;
             }
@@ -264,10 +271,13 @@ int Client::matching_servers()
             if (rl)
             {
                 root = vecl[index].getRoot();
-                if (root[root.size()-1] == '/')
+                if (root[root.size()-1] == '/' && path != "/")
                     reqURL = root + path.substr(1);
+                else if (path == "/")
+                    reqURL = root;
                 else
                     reqURL = root + path;
+                matched = 1;
                 return 1;
             }
             else
@@ -279,7 +289,6 @@ int Client::matching_servers()
     }
     return 0;
 }
-
 // bool isLocationMatch(std::string location, std::string url)
 // {
 //     if(location[location.size()-1] != '/')
@@ -302,9 +311,16 @@ int Client::matching_servers()
 
 // int Client::matching_servers()
 // {
+//     // int slashl = 0;
+//     // int index = 0;
 //     std::vector<Location> vecl = servers[sindex].getLocations();
 //     for (size_t j = 0; j < vecl.size(); j++)
 //     {
+//         // if (vecl[j].getLocationPath() == "/" && slashl == 0)
+//         // {
+//         //     slashl = 1;
+//         //     index = j;
+//         // }
 //         if(isLocationMatch(vecl[j].getLocationPath(), path))
 //         {
 //             std::string root = vecl[j].getRoot();
@@ -315,6 +331,18 @@ int Client::matching_servers()
 //             return 1;
 //         }
 //     }
+//     // if (slashl)
+//     // {
+//     //     if(isLocationMatch(vecl[index].getLocationPath(), path))
+//     //     {
+//     //         std::string root = vecl[index].getRoot();
+//     //         if(root[root.size()-1] == '/')
+//     //            root.erase(root.size()-1, 1);
+//     //         replaceHomeWithPath(path,vecl[index].getLocationPath(),root);
+//     //         std::cout<<path<<"      *********************\n";
+//     //         return 1;
+//     //     }
+//     // }
 //     return 0;
 // }
 
@@ -575,7 +603,8 @@ void   Client::handl_methodes()
     {
 
 
-
+        std::string url = "/nfs/homes/ybouzafo/Desktop/aaaaaaaaaaaaaaa/Srcs/" + reqURL;
+        std::cout << url << "\n";
 
         
         flag_in_out = true;
