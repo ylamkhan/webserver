@@ -101,6 +101,7 @@ void Socket::handleConnections()
                     ssize_t   bytesRead = recv(events[i].data.fd, buffer, 1023,0);
                     if (bytesRead == 0 || bytesRead == -1)
                     {
+                        std::cout << bytesRead<<";\n";
                         std::cerr << "Error reading from client\n";
                         close(sockfd);
                         epoll_ctl(epollfd, EPOLL_CTL_DEL, sockfd, static_cast<epoll_event*>(0));

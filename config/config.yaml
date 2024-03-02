@@ -17,8 +17,8 @@ servers:
       - [.sh, /usr/bin/bash]
 
     locations:
-      - path: /aaa
-        root: www/
+      - path: /static/webservj
+        root: ww
         upload: ON
         autoindex: on
         methods: [GET]
@@ -33,7 +33,7 @@ servers:
         proxy_read_timeout: 5s
         return: https://google.com
 
-      - path: /static
+      - path: /
         root: www
         methods: [GET]
         autoindex: on

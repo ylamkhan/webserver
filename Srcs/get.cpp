@@ -55,10 +55,13 @@ void    send_to_client( std::string cmp_req, std::string  source ,int  sockfd , 
 
 void Client::get()
 {
-    std::string url = "/nfs/homes/zsaoud/Desktop/z/Srcs/" + reqURL;
+    std::string url = "/nfs/homes/zsaoud/Desktop/y/Srcs/" + reqURL;
+    //haydna slash mn lekher dyal url
+    // if (url[url.size()-1] == '/')
+    //     url.erase(url.size()-1);
 
     DIR *dir;
-    struct dirent *entry;
+     struct dirent *entry;
 
     std::string rep;
     dir = opendir(url.c_str());
@@ -71,6 +74,7 @@ void Client::get()
             std::string entry_name = entry->d_name;
             std::string name = entry_name;
             entry_name =  entry_name;
+            std::cout << entry_name << "\n";
             rep += "<li><a href=\"" + entry_name + "\">" + name + "</a></li>";
         }
         rep += "</ul>";
@@ -80,12 +84,20 @@ void Client::get()
                         "Content-Length: " + to_string(rep.size()) + "\n\n" + rep; 
     
     
-    
-        write(sockfd, response.c_str(), response.size());
+        if(write(sockfd, response.c_str(), response.size())<0)
+        {
+            std::cout<<"vvvvvvvvvvvvvvvvvvvvvvvvvv";
+            exit(0);
+        }
+
+        closedir(dir);
+        flag_in_out = true;
+
     
     }
     else
     {
+        std::cout << url<<"\n";
         std::ifstream file(url.c_str());
         if (!file.is_open())
         {
@@ -113,7 +125,7 @@ void Client::get()
             file.read(body, sizeof(body) - 1);
             if (file.fail() && !file.eof())
             {
-                std::perror("read");
+                std::cerr << "error read file\n";
                 return ;
             }
             if (file.gcount() == 0)
@@ -125,6 +137,7 @@ void Client::get()
             cmp_req += p_req;
         }
         file.close();
+        // std::cout<<"hhhhhhhhhhhhhhhhhhhhhhh\n";
 
         store_type();
         std::string Content_type; 
@@ -140,7 +153,7 @@ void Client::get()
                 break;
             }
         }
+        flag_in_out = true;
 
     }
-    flag_in_out = true;
 }

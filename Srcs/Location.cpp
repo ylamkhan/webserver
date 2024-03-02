@@ -130,6 +130,8 @@ bool Location::isCgiPathsSet() const {
 /*****************SETTERS********************/
 
 void Location::setLocPath(std::string path) {
+    if (path[path.size()-1] == '/' && path != "/")
+        path.erase(path.size()-1);
     location_path = path;
 }
 

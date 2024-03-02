@@ -24,6 +24,11 @@ std::string& Client::ltrim(std::string& str)
 void    Client::parseRequest(const std::string& httpRequest)
 {
   
+  std::cout << "---------------------------------------------------------------------\n";
+
+    std::cout << httpRequest << "\n";
+  std::cout << "---------------------------------------------------------------------\n";
+
     if (!headerSet)
         setReqStr(httpRequest);
     if (!headerSet && requestStr.find("\r\n\r\n", 0) != std::string::npos)
