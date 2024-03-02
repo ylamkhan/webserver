@@ -19,6 +19,7 @@ servers:
     locations:
       - path: /static/webservj
         root: ww
+        list: ON
         upload: ON
         autoindex: on
         methods: [GET]
@@ -36,6 +37,7 @@ servers:
       - path: /
         root: www
         methods: [GET]
+        list: OFF
         autoindex: on
 
   - listen:
@@ -48,6 +50,7 @@ servers:
     locations:
       - path: "/cgi-bin"
         root: www
+        list: ON
         autoindex: on
         methods: [POST]
         cgi_paths:
@@ -56,6 +59,7 @@ servers:
 
       - path: "/api"
         root: www/api
+        list: ON
         methods: [GET, POST]
 
   - listen:
@@ -68,10 +72,12 @@ servers:
       - path: "/uploads"
         root: www/uploads
         methods: [DELETE]
-        upload: ON
+        list: ON
+        upload: On
         autoindex: on
 
       - path: "/downloads"
         root: www/downloads
         methods: [GET]
+        list: ON
         autoindex: on

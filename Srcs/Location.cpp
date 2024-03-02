@@ -29,6 +29,7 @@ Location &Location::operator=(const Location &other) {
         root = other.root;
         location_path = other.location_path;
         auto_index = other.auto_index;
+        list = other.list;
         upload = other.upload;
         methods = other.methods;
         imethods = other.imethods;
@@ -54,6 +55,10 @@ Location::~Location() {
 }
 
 /****************GETTERS********************/
+
+std::string Location::getList() const {
+    return list;
+}
 
 std::string Location::getLocationPath() const {
     return location_path;
@@ -133,6 +138,10 @@ void Location::setLocPath(std::string path) {
     if (path[path.size()-1] == '/' && path != "/")
         path.erase(path.size()-1);
     location_path = path;
+}
+
+void Location::setList(std::string l) {
+    list = l;
 }
 
 void Location::setCgiPaths(pairStr p) {

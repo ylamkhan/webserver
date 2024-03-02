@@ -19,6 +19,7 @@ class Location {
                 vecStr index;
                 std::string root;
                 std::string upload;
+                std::string list;
                 vecStr methods;
                 vecInt imethods;
                 mapErr error_pages;
@@ -52,6 +53,7 @@ class Location {
                 std::string getUpload() const;
                 vecSPair getCgi() const;
                 std::string getLocationPath() const;
+                std::string getList() const;
 
                 void setCgiPaths(pairStr p);
                 void setRoot(std::string r);
@@ -65,6 +67,7 @@ class Location {
                 void setUpload(std::string up);
                 void setProxyTimeout(size_t p);
                 void setLocPath(std::string path);
+                void setList(std::string l);
 
                 void setrootSet(bool b);
                 void setindexSet(bool b);

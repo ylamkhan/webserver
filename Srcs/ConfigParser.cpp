@@ -121,6 +121,8 @@ void ConfigParser::fillLocation(std::vector<std::string> lines, size_t *i, Serve
             saveLocRoot(location, lines, i);
         else if (lines[*i].compare(0, 15, "        upload:") == 0)
             saveUpload(location, lines, i);
+        else if (lines[*i].compare(0, 13, "        list:") == 0)
+            saveList(location, lines, i);
         else if (lines[*i].compare(0, 18, "        autoindex:") == 0)
             saveAutoindex(location, lines, i);
         else if (lines[*i].compare(0, 16, "        methods:") == 0)
@@ -147,6 +149,20 @@ void ConfigParser::fillLocation(std::vector<std::string> lines, size_t *i, Serve
         (*i)++;
     }
     server.setLocation(location);
+}
+
+void    ConfigParser::saveList(Location &location, std::vector<std::string> lines, size_t *i) {
+    std::string prefix = "        list: ";
+    std::string line = lines[*i];
+
+    location.setList(line.substr(prefix.length()));
+    std::string list = location.getList();
+    std::transform(list.begin(), list.end(), list.begin(), ::toupper);
+    // exit(0);
+    if (list != "ON" && list != "OFF" && list.size() != 0) {
+        std::cerr << "Zineb: Invalid value for List. It should be either 'ON' or 'OFF'." << std::endl;
+        exit(1);
+    }
 }
 
 void ConfigParser::saveRedirUrl(Location &location, std::vector<std::string> lines, size_t *i) {
@@ -251,9 +267,10 @@ void ConfigParser::saveUpload(Location &location, std::vector<std::string> &line
     std::string line = lines[*i];
 
     location.setUpload(line.substr(prefix.length()));
-    //std::transform(location.getUpload().begin(), location.getUpload().end(), location.getUpload().begin(), ::toupper);
+    std::string upload = location.getUpload();
+    std::transform(upload.begin(), upload.end(), upload.begin(), ::toupper);
     // exit(0);
-    if (location.getUpload() != "ON" && location.getUpload() != "OFF" && location.getUpload().size() != 0) {
+    if (upload != "ON" && upload != "OFF" && upload.size() != 0) {
         std::cerr << "Zineb: Invalid value for upload. It should be either 'ON' or 'OFF'." << std::endl;
         exit(1);
     }
