@@ -15,7 +15,6 @@ int Client::matching_servers() {
         
         for (size_t j = 0; j < servers[sindex].getLocations().size(); j++)
         {
-            std::cout<<servers[sindex].getLocations().size()<<"***********************************************\n";
             std::string p = servers[sindex].getLocations()[j].getLocationPath();
             if (p == tmp)
             {

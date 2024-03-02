@@ -24,16 +24,11 @@ std::string& Client::ltrim(std::string& str)
 void    Client::parseRequest(const std::string& httpRequest)
 {
   
-  std::cout << "---------------------------------------------------------------------\n";
-
-    std::cout << httpRequest << "\n";
-  std::cout << "---------------------------------------------------------------------\n";
-
+  
     if (!headerSet)
         setReqStr(httpRequest);
     if (!headerSet && requestStr.find("\r\n\r\n", 0) != std::string::npos)
     {
-       
         size_t pos = 0;
         size_t end = 0;
         size_t ch = requestStr.find("\r\n\r\n");
@@ -101,8 +96,8 @@ void    Client::parseRequest(const std::string& httpRequest)
             std::cerr<<"Error: not found location\n";
             return ;
         }
+        handl_methodes();
     }
-    handl_methodes();
 }
 
 

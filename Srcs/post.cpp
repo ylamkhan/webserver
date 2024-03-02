@@ -48,17 +48,26 @@ void Client::post()
     {
         if(store_hexSize > body.size())
         {
-            std::cout << body  << "\n";
+           
             if(save.size() <= hexSize)
             {
                 save += body;
-
+               
             }
+           
+            // std::cout << "....." << save.size() << std::endl;
+            // std::cout << "....." << hexSize << "\n";
+            
             if(save.size() > hexSize)
             {
+                
                 store = save.substr(0, hexSize);
                 file.write(store.c_str(), store.size());
                 std::string sub2 = save.substr(hexSize);
+                // std::cout << "---------------------------------------------------------------------\n";
+                // std::cout << sub2 << "\n";
+                // std::cout << "---------------------------------------------------------------------\n";
+
                 size_t posa1 = sub2.find("\r\n");
                 size_t posa2;
                 if(posa1 != std::string::npos)
@@ -69,15 +78,24 @@ void Client::post()
                         shinka = sub2.substr(posa1 + 2, posa2 - posa1 - 2);
                         hexSize = hexa_to_dec(shinka);
                     }
+                        sab = sub2.substr(posa2 + 2);
+                        save.clear();
+                        save += sab;
+
+                    // std::cout << "*********************************************************************************\n";
+                    // std::cout << sab << "\n";
+                    // std::cout << "*********************************************************************************\n";
                 }
-                sab = sub2.substr(posa2 + 2);
-                save.clear();
-                save += sab;
+                else 
+                {
+                    save.clear();
+                    save += sub2;
+                }
             }
+            
             bodySize += body.size();
             if(bodySize >= (size_t)atoi(headers["Content-Length"].c_str()))
             {
-                
                 file.write(body.c_str(), body.size());
                 flag_in_out = true;
                 file.close();
