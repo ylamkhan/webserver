@@ -55,7 +55,7 @@ void    send_to_client( std::string cmp_req, std::string  source ,int  sockfd , 
 
 void Client::get()
 {
-    std::string url = "/nfs/homes/zsaoud/Desktop/y/Srcs/" + reqURL;
+    std::string url = "./Srcs/" + reqURL;
     //haydna slash mn lekher dyal url
     // if (url[url.size()-1] == '/')
     //     url.erase(url.size()-1);
@@ -73,9 +73,12 @@ void Client::get()
         {
             std::string entry_name = entry->d_name;
             std::string name = entry_name;
-            entry_name =  entry_name;
-            std::cout << entry_name << "\n";
-            rep += "<li><a href=\"" + entry_name + "\">" + name + "</a></li>";
+            if(entry_name != "." && entry_name != "..")
+            {
+                entry_name =  entry_name;
+                std::cout << entry_name << "\n";
+                rep += "<li><a href=\"" + entry_name + "\">" + name + "</a></li>";
+            }
         }
         rep += "</ul>";
         std::string response;

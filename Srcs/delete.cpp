@@ -74,7 +74,7 @@ void remove_directory_file(const std::string& name)
 
 void Client::web_delete()
 {
-    std::string url = "/nfs/homes/zsaoud/Desktop/z/Srcs/" + reqURL;
+    std::string url = "./Srcs/"  + reqURL;
     std::cout << url << "\n";
         remove_directory_file(url);
     flag_in_out = true;
