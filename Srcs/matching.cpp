@@ -8,6 +8,8 @@ int Client::matching_servers() {
     
     if (tmp[tmp.size()-1] == '/')
         tmp.erase(tmp.size()-1);
+    if (path.empty())
+        tmp = "/";
     while (!matched)
     {
         

@@ -93,11 +93,14 @@ void    Client::parseRequest(const std::string& httpRequest)
     {
         body = httpRequest;
     }
-    if(!matching_servers())
+    if (headerSet)
     {
-        flag_in_out = true;
-        std::cerr<<"Error: not found location\n";
-        return ;
+        if(!matching_servers())
+        {
+            flag_in_out = true;
+            std::cerr<<"Error: not found location\n";
+            return ;
+        }
     }
     handl_methodes();
 }

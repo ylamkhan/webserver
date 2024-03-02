@@ -57,6 +57,7 @@ Server::~Server() {
 /****************GETTERS********************/
 
 vecLoc Server::getLocations() const {
+    std::cout<<locations.size()<<"***************\n";
     return locations;
 }
 

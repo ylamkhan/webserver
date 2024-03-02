@@ -65,7 +65,16 @@ void Socket::handleConnections()
         for (int i = 0; i < numEvents; ++i)
         {
             int sockfd = events[i].data.fd;
-
+            // if ((events[i].events & EPOLLERR)   || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN)))
+            // {
+            //     std::cerr<<"epoll error\n";
+            //     close(events[i].data.fd);
+            // }
+            // if (numEvents == -1)
+            // {
+            //     perror("epoll_wait()");
+            //     exit(1);
+            // }
             if (std::find(serverSockets.begin(), serverSockets.end(), sockfd) != serverSockets.end())
             {
 
@@ -99,6 +108,7 @@ void Socket::handleConnections()
     
                     char buffer[1024] = {0};
                     ssize_t   bytesRead = recv(events[i].data.fd, buffer, 1023,0);
+                   
                     if (bytesRead == 0 || bytesRead == -1)
                     {
                         std::cout << bytesRead<<";\n";
