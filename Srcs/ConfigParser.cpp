@@ -21,12 +21,18 @@ void ConfigParser::parseConfig(std::string filename)
         std::cerr << "Error opening file: " << filename << std::endl;
         exit(1);
     }
+
     std::string line;
     while(std::getline(file, line))
     {
         lines.push_back(line);
         i++;
     }
+    if (i == 0) {
+        std::cerr << "Error: empty file " << filename << std::endl;
+        exit(1);
+    }
+
     fillServers(lines);
     file.close();
 }
@@ -34,12 +40,19 @@ void ConfigParser::parseConfig(std::string filename)
 void ConfigParser::fillServers(std::vector<std::string> lines)
 {
     size_t i = 0;
+    size_t count = 0;
     
     while (i < lines.size())
     {
         if (isEmptyLine(lines[i]))
         {
+            count++;
             i++;
+            if (count == lines.size())
+            {
+                std::cerr << "Invalid Config File!!!" << std::endl;
+                exit(1);
+            }
             continue;
         }
         if (lines[i] == "servers:")
@@ -197,14 +210,33 @@ void ConfigParser::saveLocErrorPages(Location &location, std::vector<std::string
     line = lines[*i];
 
     while (line.find("          - ") == 0) {
-        std::istringstream iss(line.substr(11));
+        std::istringstream iss(line.substr(12));
+        std::string code;
         int errorCode;
         std::string pagePath;
         char colon;
 
-        iss >> errorCode >> colon >> pagePath;
+        std::getline(iss, code, ':');
+        iss >> colon;
+        std::getline(iss, pagePath);
+        // std::cout << "++++++++"<<colon<<"+*************++\n";
 
-        if (iss.fail() || colon != ':' || errorCode < 100 || errorCode > 999 || pagePath.empty()) {
+        //iss >> errorCode >> colon >> pagePath;
+        if (code.length() != 3 || code.find_first_not_of("0123456789") != std::string::npos)
+        {
+            std::cerr << "Zineb: Invalid error code!" << std::endl;
+            exit(1);
+        }
+        
+        // std::cout << "++++++++"<<pagePath<<"+++++++++++++++++++++++++++++\n";
+        if (pagePath.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890./_") != std::string::npos)
+        {
+            std::cerr << "Zineb: Invalid characters detected in the error page path!" << std::endl;
+            exit(1);
+        }
+
+        errorCode = std::atoi(code.c_str());
+        if (errorCode < 100 || errorCode > 999 || pagePath.empty()) {
             std::cerr << "Zineb: Invalid format for error_pages entry." << std::endl;
             exit(1);
         }

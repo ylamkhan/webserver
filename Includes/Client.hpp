@@ -37,6 +37,7 @@ class Client {
     private:
         int sockfd;
         std::ofstream file;
+        std::string url;
 
         std::vector<Server> servers;
 
@@ -58,6 +59,7 @@ class Client {
         size_t hexSize;
         size_t store_hexSize;
         size_t sindex;
+        size_t lindex;
         size_t status;
 
         int port;
@@ -83,7 +85,7 @@ class Client {
         Client(Client const &other);
 
         bool get_flag_in_out() const;
-
+        void cgi();
         int getSocket() const;
         void setFd(int fd);
         void open_file();
@@ -105,6 +107,8 @@ class Client {
         int     mattching(std::string url, std::string pathloc);
         unsigned int hexa_to_dec(const std::string& str);
         std::string& ltrim(std::string& str);
+        int checkforCgi(std::string type);
+
 
         void post();
         void get();

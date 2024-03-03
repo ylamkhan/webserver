@@ -119,6 +119,7 @@ void Socket::handleConnections()
                     }
                     std::string requestStr(buffer, bytesRead);
                     mapClient[sockfd].set_request_client(requestStr);
+                    
                 }
                 else if( events[i].data.fd  & EPOLLOUT && mapClient[events[i].data.fd].get_flag_in_out())
                 {

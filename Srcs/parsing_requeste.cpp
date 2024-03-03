@@ -27,6 +27,7 @@ void    Client::parseRequest(const std::string& httpRequest)
   
     if (!headerSet)
         setReqStr(httpRequest);
+    //tim
     if (!headerSet && requestStr.find("\r\n\r\n", 0) != std::string::npos)
     {
         size_t pos = 0;

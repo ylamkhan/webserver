@@ -25,6 +25,7 @@ int Client::matching_servers() {
                     tmp = "";
                 reqURL = root + path.substr(tmp.size());
                 matched = 1;
+                lindex = j;
                 return 1;
             }
             if (tmp == "/" && j == servers[sindex].getLocations().size() - 1)

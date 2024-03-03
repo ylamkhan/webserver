@@ -11,6 +11,7 @@
 Client::Client(std::vector<Server> &servers):servers(servers)
 {
     sindex = 0;
+    lindex = 0;
     flag_in_out = false;
     flag_open = false;
     bodySize = 0;
@@ -44,6 +45,7 @@ Client &Client::operator=(Client const &other)
     sab = other.sab;
     ss = other.ss;
     sindex = other.sindex;
+    lindex = other.lindex;
     return *this;
 }
 

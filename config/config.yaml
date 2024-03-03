@@ -3,7 +3,7 @@ servers:
     server_name: youssef
     port: 8080
     host: 127.0.0.1
-    root: www/docs
+    root: www/
     error_pages:
       - 404: /error_pages/404.html
       - 500: /error_pages/500.html
@@ -36,6 +36,7 @@ servers:
 
       - path: /
         root: www
+        upload: ON
         methods: [GET]
         list: OFF
         autoindex: on

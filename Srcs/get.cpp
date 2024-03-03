@@ -52,10 +52,22 @@ void    send_to_client( std::string cmp_req, std::string  source ,int  sockfd , 
     write(sockfd, response.c_str(), response.size());
     write_in_socket(source, sockfd);
 }
+int Client::checkforCgi(std::string type)
+{
+    vecSPair cgis = servers[sindex].getLocations()[lindex].getCgi();
 
+    for (size_t i = 0; i < cgis.size(); i++)
+    {
+        if (cgis[i].first == type)
+            return 1;
+    }
+
+    return 0;
+}
 void Client::get()
 {
-    std::string url = "./Srcs/" + reqURL;
+    std::cout<<servers[sindex].getLocations()[lindex].getUpload()<<"-----\n";
+    url = "./Srcs/" + reqURL;
     //haydna slash mn lekher dyal url
     // if (url[url.size()-1] == '/')
     //     url.erase(url.size()-1);
@@ -119,8 +131,9 @@ void Client::get()
         {
             type = url.substr(t);
         }
+        // std::cout << type<<"--------\n";
         // if (checkforCgi(type))
-        //     handleCgi();
+        //     cgi();
         char body[1024];
         std::string cmp_req;
         while (true)
