@@ -221,12 +221,34 @@ void Client::send_client()
         {
             if (Opened)
             {
+
+                size_t t = url.rfind(".");
+                std::string typa;
+                if(t != std::string::npos)
+                {
+                    typa = url.substr(t);
+                }
+    
+                store_type();
+                std::string Content_typa; 
+                std::map<std::string, std::string>::iterator it;
+                for(it = mime_type.begin() ; it != mime_type.end(); ++it)
+                {
+                    std::string first = it->first;
+                    std::string second = it->second;
+                    if(second == typa )
+                    {
+                        Content_typa = first;
+                        break;
+                    }
+                }
                 char buffer[1024] = {0};
+
                 if (!flagResponse)
                 {
                     std::string response;
                     response = "HTTP/1.1 200 OK\r\n"
-                                    "Content-Type: text/html\r\n\r\n";
+                                    "Content-Type: " + Content_typa + "\r\n\r\n";
                     write(sockfd, response.c_str(), response.size());
                     flagResponse = true;
                     return;
