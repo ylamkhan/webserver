@@ -1,1 +1,0 @@
-print("zineb is the most beautifull girl in the world, I love so much more than everything in this worl^_^");

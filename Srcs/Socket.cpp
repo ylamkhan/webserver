@@ -119,7 +119,7 @@ void Socket::handleConnections()
             {
                 if(events[i].data.fd & EPOLLIN && !mapClient[events[i].data.fd].get_flag_in_out())
                 {
-                    signal(SIGPIPE,SIG_IGN);
+                   
                     char buffer[1024] = {0};
                     // std::cout << "-----------------------------\n";
                     ssize_t   bytesRead = read(events[i].data.fd, buffer, 1023);
@@ -137,16 +137,13 @@ void Socket::handleConnections()
                     
                 }
                 else if( events[i].data.fd  & EPOLLOUT && mapClient[events[i].data.fd].get_flag_in_out())
-                {   
-                    // std::cout<<events[i].data.fd<<"         :\n";
+                {
+                    std::cout << "*****************************************\n";
+                    std::cout << "=====================================================\n";
                     mapClient[events[i].data.fd].send_client();
                     //hna khdmna b var sockfd hit ila closina lfd raymchi mn events
                     if (mapClient[sockfd].getClosed())
                         mapClient.erase(sockfd);
-                    // std::string response = "HTTP/1.1 200 OK\r\n"
-                    //     "Content-Type: text/html\r\n\r\nhello test";
-                    // write(events[i].data.fd, response.c_str(), response.size());
-                    // close(events[i].data.fd);
                 }
                     
             }

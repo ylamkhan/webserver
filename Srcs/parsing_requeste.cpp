@@ -92,7 +92,7 @@ void    Client::parseRequest(const std::string& httpRequest)
             hexSize = hexa_to_dec(chunks);
             store_hexSize = hexa_to_dec(chunks);
         }
-        body = requestStr.substr(ch );
+        body = requestStr.substr(ch);
 
         std::map<std::string, std::string >::iterator it;
         it = headers.find("Transfer-Encoding");

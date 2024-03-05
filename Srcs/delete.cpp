@@ -76,6 +76,6 @@ void Client::web_delete()
 {
     std::string url = "./Srcs/"  + reqURL;
     std::cout << url << "\n";
-        remove_directory_file(url);
+    remove_directory_file(url);
     flag_in_out = true;
 }

@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include "../Includes/Client.hpp"
+#include<signal.h>
 
 
 Client::Client(std::vector<Server> &servers):servers(servers)
@@ -57,8 +58,8 @@ Client &Client::operator=(Client const &other)
     method = other.method;
     path = other.path;
     httpVersion = other.httpVersion;
-    headers = other.headers; //
-    mime_type = other.mime_type; //
+    headers = other.headers; 
+    mime_type = other.mime_type; 
     body = other.body;
     requestStr = other.requestStr;
     headerSet = other.headerSet;
@@ -214,6 +215,7 @@ void Client::send_client()
 {
     if (method == "GET")
     {
+        signal(SIGPIPE,SIG_IGN);
         if (listing)
         {
             listDir();}
@@ -249,12 +251,20 @@ void Client::send_client()
                     std::string response;
                     response = "HTTP/1.1 200 OK\r\n"
                                     "Content-Type: " + Content_typa + "\r\n\r\n";
-                    write(sockfd, response.c_str(), response.size());
+                    int a = write(sockfd, response.c_str(), response.size());
+                    if(a <= 0)
+                    {
+                        perror("er1: ");
+                    }
                     flagResponse = true;
                     return;
                 }
                 a_file.read(buffer, sizeof(buffer) - 1);
-                write(sockfd, buffer, a_file.gcount());
+               int a = write(sockfd, buffer, a_file.gcount());
+               if(a <= 0)
+                    {
+                        perror("er2: ");
+                    }
                 if (a_file.eof() || a_file.fail() || a_file.gcount() == 0)
                 {
                     a_file.close();
@@ -264,11 +274,30 @@ void Client::send_client()
             }
             else
             {
-                std::cout<<"dddddddddddddddddddddddddd\n";
                 close(sockfd);
                 closed = true;
             }
         }
+    }
+    else if (method == "POST")
+    {
+        std::string message = "Sucess ";
+        std::string response = "HTTP/1.1 200 OK \r\nContent-Type: text/html\r\n\r\n<html><body><h1>" + message + "</h1></body></html>\r\n";
+ 
+        write(sockfd, response.c_str(), response.size());
+        // flag wach n upload ola la;
+        close(sockfd);
+        closed = true;
+    }
+    else if (method == "DELETE")
+    {
+        std::string response = "HTTP/1.1 204 No Content\r\n\r\n";
+
+       //if(matsuprimatch )  ==> std::string response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Resource Not Found</h1></body></html>\r\n";
+
+        write(sockfd, response.c_str(), response.size());
+        close(sockfd);
+        closed = true;
     }
     else if (method.empty())
     {
