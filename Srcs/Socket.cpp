@@ -123,6 +123,7 @@ void Socket::handleConnections()
                     char buffer[1024] = {0};
                     // std::cout << "-----------------------------\n";
                     ssize_t   bytesRead = read(events[i].data.fd, buffer, 1023);
+                    
                     // std::cout<<events[i].data.fd<<"         :"<<buffer<<"\n";
                     if (bytesRead == 0 || bytesRead == -1)
                     {
@@ -138,7 +139,10 @@ void Socket::handleConnections()
                 else if( events[i].data.fd  & EPOLLOUT && mapClient[events[i].data.fd].get_flag_in_out())
                 {   
                     // std::cout<<events[i].data.fd<<"         :\n";
-                    send_client(events[i].data.fd);
+                    mapClient[events[i].data.fd].send_client();
+                    //hna khdmna b var sockfd hit ila closina lfd raymchi mn events
+                    if (mapClient[sockfd].getClosed())
+                        mapClient.erase(sockfd);
                     // std::string response = "HTTP/1.1 200 OK\r\n"
                     //     "Content-Type: text/html\r\n\r\nhello test";
                     // write(events[i].data.fd, response.c_str(), response.size());
@@ -173,26 +177,6 @@ std::map<int, Client> Socket::getMapClient() const {
     return mapClient;
 }
 
-void Socket::send_client(int fdclient)
-{
-    char buffer[1024] = {0};
-    if (!mapClient[fdclient].getflagResponse())
-    {
-        std::cout << "---\n";
-        std::string response;
-        response = "HTTP/1.1 200 OK\r\n"
-                        "Content-Type: text/html\r\n\r\n";
-        write(fdclient, response.c_str(), response.size());
-        mapClient[fdclient].setflagResponse(true);
-        return;
-    }
-    mapClient[fdclient].get_a_file().read(buffer, sizeof(buffer) - 1);
-    write(fdclient, buffer, mapClient[fdclient].get_a_file().gcount());
-    if (mapClient[fdclient].get_a_file().eof() || mapClient[fdclient].get_a_file().fail() || mapClient[fdclient].get_a_file().gcount() == 0)
-    {
-        std::cout<<"111111111111111111111111111111111111111111\n";
-        mapClient[fdclient].get_a_file().close();
-        std::cout<<"fdclient:"<<fdclient<<"\n";
-        close(fdclient);
-    }
-}
+
+
+

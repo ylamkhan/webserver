@@ -17,12 +17,14 @@ int Client::matching_servers()
             std::string p = servers[sindex].getLocations()[j].getLocationPath();
             if (p == tmp)
             {
+                std::cout << "p:"<<p<<"***"<<"tmp:"<<tmp<<"****\n";
                 std::string root = servers[sindex].getLocations()[j].getRoot();
                 if (root[root.size()-1] == '/')
                     root.erase(root.size()-1);
                 if (tmp == "/")
                     tmp = "";
                 reqURL = root + path.substr(tmp.size());
+                std::cout<<path.substr(tmp.size())<<"=========\n";
                 matched = 1;
                 lindex = j;
                 return 1;

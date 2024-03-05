@@ -91,6 +91,8 @@ class Client {
         std::string sab;
         std::string reqURL;
         std::string message;
+        bool listing;
+        bool closed;
 
     public:
         Client(){};
@@ -98,6 +100,7 @@ class Client {
         ~Client();
         Client &operator=(Client const &other);
         Client(Client const &other);
+
 
         bool get_flag_in_out() const;
         void cgi(std::string u);
@@ -142,6 +145,10 @@ class Client {
         bool getflagResponse();
         void setflagResponse(bool t);
         std::ifstream &get_a_file();
+        void send_client();
+        bool getClosed() const;
+
+        /**********************************/
 };
 
 #endif

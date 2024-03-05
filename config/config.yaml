@@ -21,7 +21,7 @@ servers:
         root: www
         list: ON
         upload: ON
-        autoindex: on
+        autoindex: OFF
         methods: [GET]
         index: [index.html]
         error_pages:

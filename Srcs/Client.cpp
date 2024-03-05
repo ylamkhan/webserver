@@ -21,6 +21,8 @@ Client::Client(std::vector<Server> &servers):servers(servers)
     startRead = false;
     bodySize = 0;
     flagResponse = false;
+    listing = false;
+    closed = false;
     executable = "";
     query = "";
     message = "";
@@ -34,6 +36,8 @@ Client::~Client() {}
 
 Client &Client::operator=(Client const &other)
 {
+    closed = other.closed;
+    listing = other.listing;
     flagResponse = other.flagResponse;
     getUrl = other.getUrl;
     cgiUrl = other.cgiUrl;
@@ -197,12 +201,59 @@ std::ifstream &Client::get_a_file()
     return a_file;
 }
 
+bool Client::getClosed() const {
+    return closed;
+}
+
 void Client::setflagResponse(bool t)
 {
     flagResponse = t;
 }
 
-
+void Client::send_client()
+{
+    if (method == "GET")
+    {
+        if (listing)
+        {
+            listDir();}
+        else
+        {
+            if (Opened)
+            {
+                char buffer[1024] = {0};
+                if (!flagResponse)
+                {
+                    std::string response;
+                    response = "HTTP/1.1 200 OK\r\n"
+                                    "Content-Type: text/html\r\n\r\n";
+                    write(sockfd, response.c_str(), response.size());
+                    flagResponse = true;
+                    return;
+                }
+                a_file.read(buffer, sizeof(buffer) - 1);
+                write(sockfd, buffer, a_file.gcount());
+                if (a_file.eof() || a_file.fail() || a_file.gcount() == 0)
+                {
+                    a_file.close();
+                    close(sockfd);
+                    closed = true;
+                }
+            }
+            else
+            {
+                std::cout<<"dddddddddddddddddddddddddd\n";
+                close(sockfd);
+                closed = true;
+            }
+        }
+    }
+    else if (method.empty())
+    {
+        closed = true;
+        close(sockfd);
+    }
+}
 
 
 

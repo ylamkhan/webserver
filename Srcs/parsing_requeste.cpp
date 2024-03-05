@@ -23,6 +23,11 @@ std::string& Client::ltrim(std::string& str)
 
 void    Client::parseRequest(const std::string& httpRequest)
 {
+    if (method.empty() && httpRequest.empty())
+    {
+        flag_in_out = true;
+        return ;
+    }
     if (!headerSet)
         setReqStr(httpRequest);
     //tim
