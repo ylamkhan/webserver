@@ -23,8 +23,6 @@ std::string& Client::ltrim(std::string& str)
 
 void    Client::parseRequest(const std::string& httpRequest)
 {
-  
-  
     if (!headerSet)
         setReqStr(httpRequest);
     //tim
@@ -32,6 +30,7 @@ void    Client::parseRequest(const std::string& httpRequest)
     {
         size_t pos = 0;
         size_t end = 0;
+
         size_t ch = requestStr.find("\r\n\r\n");
         if(ch != std::string::npos)
         {
@@ -42,7 +41,19 @@ void    Client::parseRequest(const std::string& httpRequest)
         //// 
         pos = end + 1;
         end = requestStr.find(' ', pos);
-        path = requestStr.substr(pos, end - pos);
+        // size_t p = requestStr.find("?");
+        // size_t end1 = end;
+        // if (p != std::string::npos)
+        // {
+        //     query = requestStr.substr(p, end - p);
+        //     end1 = p;
+        // }
+        // path = requestStr.substr(pos, end1 - pos);
+        std::istringstream iss(requestStr.substr(pos, end - pos));
+        std::getline(iss,path,'?');
+        iss>>query;
+        if (!query.empty())
+            query = "?" + query;
         pos = end + 1;
         end = requestStr.find("\r\n", pos);
         httpVersion = requestStr.substr(pos, end - pos);
@@ -51,7 +62,7 @@ void    Client::parseRequest(const std::string& httpRequest)
         {
             std::string line = requestStr.substr(pos, end - pos);
             std::istringstream iss(line);
-             std::string headerName, headerValue;  
+            std::string headerName, headerValue;  
             std::getline(iss,headerName,':');
             std::getline(iss,headerValue);
             headers[headerName] = ltrim(headerValue);
@@ -59,8 +70,15 @@ void    Client::parseRequest(const std::string& httpRequest)
             if(headerName == "Host")
                 setPortHost(headerValue);
         }
+        if (!is_req_well_formed())
+        {
+            Response();
+            flag_in_out = true;
+            return ;
+        }
         if(method == "POST")
             open_file();
+    
         std::string hel = requestStr.substr(ch);
         chunks_size = hel.find("\r\n");
         if(chunks_size != std::string::npos)
@@ -94,6 +112,7 @@ void    Client::parseRequest(const std::string& httpRequest)
         if(!matching_servers())
         {
             flag_in_out = true;
+            message = "404 Not Found";
             std::cerr<<"Error: not found location\n";
             return ;
         }
@@ -101,58 +120,68 @@ void    Client::parseRequest(const std::string& httpRequest)
     }
 }
 
+int getMethodIndex(std::string method)
+{
+    if (method == "GET")
+        return 0;
+    else if (method == "POST")
+        return 1;
+    else if (method == "DELETE")
+        return 2;
+    return -1;
+}
 
-// int return_method(std::string method)
-// {
-//     if(method == "GET")
-//         return 0;
-//     else if ( method == "POST")
-//         return 1;
-//     else if (method == "DELETE")
-//         return 2;
-//     else
-//         return -1; 
-// }
+int Client::checkMethod()
+{
+    std::vector<int> methods = servers[sindex].getLocations()[lindex].getMethods();
+    for (size_t i = 0; i < methods.size(); i++)
+    {
+        if (getMethodIndex(method) == methods[i])
+            return 1;
+    }
+    return 1;
+}
 
-// int Client::is_req_well_formed()
-// {
-//     iter_map it = headers.find("Transfer-Encoding");
-//     if(it != headers.end() || return_method(method) < 0)
-//     {
-//         if(it->second != "chunked")
-//         {
-//             message = "501 Not Impelemnted.";
-//             status = 501;
-//             return 0;
-//         }
-//     }
-//     iter_map it1 = headers.find("Content-Length");
-//     const std::string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&'()*+,;=%";
-//     std::size_t found = path.find_first_not_of(allowedChars);
-//     if((path == "POST" && (it == headers.end() || it1 == headers.end())) || (found != std::string::npos))
-//     {
-//         message = "400 Bad Requeset.";
-//         status = 400;
-//         return 0;
-//     }
-//     if(path.length() <= 2048)
-//     {
-//         message = "414 Requeset-URL Too Long.";
-//         status = 400;
-//         return 0;
-//     }
-//     iter_map it2 = headers.find("Content-Length");
-//     if(it2 != headers.end())
-//     {
-//         if(atoi(it2->second.c_str()) > servers[sindex].getMaxClientBodySize())
-//         {
-//              message = "414 Requeset Entity Too Long.";
-//             status = 413;
-//             return 0;
-//         }
-//     }
-//     return 1; 
-// }
+int Client::is_req_well_formed()
+{
+    iter_map it = headers.find("Transfer-Encoding");
+    if(!checkMethod() || (it != headers.end() && method == "POST" && it->second != "chunked"))
+    {
+        message = "501 Not Impelemnted.";
+        status = 501;
+        return 0;  
+    }
+
+    iter_map it1 = headers.find("Content-Length");
+    const std::string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&'()*+,;=%";
+    std::size_t found = path.find_first_not_of(allowedChars);
+    std::size_t found1 = query.find_first_not_of(allowedChars);
+    if((method == "POST" && ((it == headers.end() && it1 == headers.end()) || it1 == headers.end())) || (!path.empty() && found != std::string::npos) || (!query.empty() && found1 != std::string::npos))
+    {
+        message = "400 Bad Requeset.";
+        status = 400;
+        return 0;
+    }
+
+    if(path.length() + query.length() > 2048)
+    {
+        message = "414 Requeset-URL Too Long.";
+        status = 400;
+        return 0;
+    }
+
+    if(method == "POST" && it1 != headers.end())
+    {
+        if((size_t)atoi(it1->second.c_str()) > servers[sindex].getMaxClientBodySize() && servers[sindex].getMaxClientBodySize() != 0)
+        {
+            message = "414 Requeset Entity Too Long.";
+            status = 413;
+            return 0;
+        }
+    }
+
+    return 1; 
+}
 
 // int Client::get_method_location_for_request_url()
 // {

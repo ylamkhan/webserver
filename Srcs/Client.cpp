@@ -13,14 +13,38 @@ Client::Client(std::vector<Server> &servers):servers(servers)
     sindex = 0;
     lindex = 0;
     flag_in_out = false;
+    cgiflag = false;
     flag_open = false;
+    Opened = false;
+    isDir = false;
+    isFile = false;
+    startRead = false;
     bodySize = 0;
+    flagResponse = false;
+    executable = "";
+    query = "";
+    message = "";
+    type = "";
+    cgiUrl = "";
+    getUrl = "";
+    status = 200;
 }
 
 Client::~Client() {}
 
 Client &Client::operator=(Client const &other)
 {
+    flagResponse = other.flagResponse;
+    getUrl = other.getUrl;
+    cgiUrl = other.cgiUrl;
+    cgiflag = other.cgiflag;
+    type = other.type;
+    startRead = other.startRead;
+    isFile = other.isFile;
+    isDir = other.isDir;
+    Opened = other.Opened;
+    query = other.query;
+    executable = other.executable;
     flag_open = other.flag_open;
     sockfd = other.sockfd;
     flag_in_out = other.flag_in_out;
@@ -46,6 +70,8 @@ Client &Client::operator=(Client const &other)
     ss = other.ss;
     sindex = other.sindex;
     lindex = other.lindex;
+    message = other.message;
+    status = other.status;
     return *this;
 }
 
@@ -97,7 +123,11 @@ int Client::mattching(std::string url, std::string pathloc)
 void   Client::handl_methodes()
 {
     if (method ==       "GET")
+    {
         get();
+        // flag_in_out = true;
+
+    }
     else if (method ==  "POST")
         post();
     else if (method ==  "DELETE")
@@ -105,7 +135,6 @@ void   Client::handl_methodes()
     else
     {
         flag_in_out = true;
-        std::cerr<<"Error: not found method******\n";
         return ;
     }
 }
@@ -149,6 +178,28 @@ std::string Client::getReqStr() const {
 
 void Client::setReqStr(std::string s) {
     requestStr += s;
+}
+
+std::string Client::getMessage() const {
+    return message;
+}
+
+size_t Client::getStatus() const {
+    return status;
+}
+
+bool Client::getflagResponse() 
+{
+    return flagResponse;
+}
+std::ifstream &Client::get_a_file()
+{
+    return a_file;
+}
+
+void Client::setflagResponse(bool t)
+{
+    flagResponse = t;
 }
 
 

@@ -37,18 +37,30 @@ class Client {
     private:
         int sockfd;
         std::ofstream file;
+        std::ifstream a_file;
         std::string url;
+        DIR *dir;
 
         std::vector<Server> servers;
 
         bool flag_open;
         bool flag_in_out;
         bool headerSet;
+        bool Opened;
+        bool isDir;
+        bool isFile;
+        bool startRead;
+        bool cgiflag;
+        bool flagResponse;
 
         std::string name_path;
+        std::string cgiUrl;
+        std::string getUrl;
+        std::string type;
         std::string requesta;
         std::string method;
         std::string path;
+        std::string query;
         std::string httpVersion;
         std::map<std::string, std::string>headers;
         std::map<std::string, std::string>mime_type;
@@ -60,6 +72,7 @@ class Client {
         size_t store_hexSize;
         size_t sindex;
         size_t lindex;
+        std::string executable;
         size_t status;
 
         int port;
@@ -77,6 +90,8 @@ class Client {
         ////
         std::string sab;
         std::string reqURL;
+        std::string message;
+
     public:
         Client(){};
         Client(std::vector<Server> &servers);
@@ -85,7 +100,7 @@ class Client {
         Client(Client const &other);
 
         bool get_flag_in_out() const;
-        void cgi();
+        void cgi(std::string u);
         int getSocket() const;
         void setFd(int fd);
         void open_file();
@@ -98,6 +113,9 @@ class Client {
         std::map<std::string, std::string> getHeaders() const;
         std::string getBody() const;
         std::string getReqStr() const;
+        std::string getMessage() const;
+        size_t getStatus() const;
+        
         void    setReqStr(std::string s);
         void    handl_methodes();
         int     matching_servers();
@@ -113,6 +131,17 @@ class Client {
         void post();
         void get();
         void web_delete();
+
+        void Response();
+        std::string toString();
+        int checkMethod();
+        int is_req_well_formed();
+
+        void    readFile(std::string u);
+        void    listDir();
+        bool getflagResponse();
+        void setflagResponse(bool t);
+        std::ifstream &get_a_file();
 };
 
 #endif

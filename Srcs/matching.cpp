@@ -1,8 +1,7 @@
 #include "../Includes/Client.hpp"
 
-int Client::matching_servers() {
-    std::cout << path<<"*\n";
-    //std::vector<Location> vecl = servers[sindex].getLocations();
+int Client::matching_servers()
+{
     std::string tmp = path;
     int matched = 0;
     

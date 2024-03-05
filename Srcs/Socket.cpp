@@ -1,7 +1,7 @@
 #include "../Includes/Socket.hpp"
 #include <arpa/inet.h>
 #include <iostream>
-
+#include<signal.h>
 Socket::Socket(const std::vector<Server>& servers):servers(servers)
 {
     
@@ -50,13 +50,24 @@ Socket::Socket(const std::vector<Server>& servers):servers(servers)
 
 Socket::~Socket() {}
 
+void makeSocketNonBlocking(int sockfd)
+{
+	int flags = fcntl(sockfd, F_GETFL, 0);
+	if (flags == -1)
+	{
+		perror("fcntl");
+		return;
+	}
+	if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1)
+		perror("fcntl");
+}
+
 void Socket::handleConnections()
 {
     sockaddr_in clientAddr;
     socklen_t clientLen = sizeof(clientAddr);
     while (true)
     {
-
         int numEvents = epoll_wait(epollfd, events, maxEvents, -1);
         if (numEvents == -1) {
             throw std::runtime_error("Error in epoll_wait");
@@ -77,14 +88,17 @@ void Socket::handleConnections()
             // }
             if (std::find(serverSockets.begin(), serverSockets.end(), sockfd) != serverSockets.end())
             {
-
                 int clientfd = accept(sockfd, reinterpret_cast<sockaddr*>(&clientAddr), &clientLen);
+                if (clientfd == -1)
+                    throw std::runtime_error("Failed to accept connection");
+                //makeSocketNonBlocking(clientfd);
+               if( mapClient.find(clientfd) != mapClient.end())
+                    mapClient.erase(clientfd);
+                //find() earase fdclient;
                 Client c(servers);
                 c.setFd(clientfd);
                 c.setSindex(mapServers[sockfd]);
                 setMapClient(clientfd, c);
-                if (clientfd == -1)
-                    throw std::runtime_error("Failed to accept connection");
                 // int flags;
                 // flags = fcntl (clientfd, F_GETFL, 0);
                 // if(flags == -1)
@@ -105,32 +119,32 @@ void Socket::handleConnections()
             {
                 if(events[i].data.fd & EPOLLIN && !mapClient[events[i].data.fd].get_flag_in_out())
                 {
-    
+                    signal(SIGPIPE,SIG_IGN);
                     char buffer[1024] = {0};
-                    ssize_t   bytesRead = recv(events[i].data.fd, buffer, 1023,0);
-                   
+                    // std::cout << "-----------------------------\n";
+                    ssize_t   bytesRead = read(events[i].data.fd, buffer, 1023);
+                    // std::cout<<events[i].data.fd<<"         :"<<buffer<<"\n";
                     if (bytesRead == 0 || bytesRead == -1)
                     {
-                        std::cout << bytesRead<<";\n";
                         std::cerr << "Error reading from client\n";
-                        close(sockfd);
-                        epoll_ctl(epollfd, EPOLL_CTL_DEL, sockfd, static_cast<epoll_event*>(0));
-                        mapClient.erase(sockfd);
+                        close(events[i].data.fd);
+                        epoll_ctl(epollfd, EPOLL_CTL_DEL, events[i].data.fd, static_cast<epoll_event*>(0));
+                        mapClient.erase(events[i].data.fd);
                     }
                     std::string requestStr(buffer, bytesRead);
-                    mapClient[sockfd].set_request_client(requestStr);
+                    mapClient[events[i].data.fd].set_request_client(requestStr);
                     
                 }
                 else if( events[i].data.fd  & EPOLLOUT && mapClient[events[i].data.fd].get_flag_in_out())
-                {
-                    const char* response =
-                        "HTTP/1.1 200 OK\r\n"
-                        "Content-Type: text/html\r\n"
-                        "\r\n"
-                        "<html><body><h1>Hello, World!</h1></body></html>\r\n";
-                    send(events[i].data.fd , response, strlen(response), 0);
-                    close(sockfd);
+                {   
+                    // std::cout<<events[i].data.fd<<"         :\n";
+                    send_client(events[i].data.fd);
+                    // std::string response = "HTTP/1.1 200 OK\r\n"
+                    //     "Content-Type: text/html\r\n\r\nhello test";
+                    // write(events[i].data.fd, response.c_str(), response.size());
+                    // close(events[i].data.fd);
                 }
+                    
             }
         }
     }
@@ -157,4 +171,28 @@ void    Socket::setMapClient(int fd, Client &c) {
 
 std::map<int, Client> Socket::getMapClient() const {
     return mapClient;
+}
+
+void Socket::send_client(int fdclient)
+{
+    char buffer[1024] = {0};
+    if (!mapClient[fdclient].getflagResponse())
+    {
+        std::cout << "---\n";
+        std::string response;
+        response = "HTTP/1.1 200 OK\r\n"
+                        "Content-Type: text/html\r\n\r\n";
+        write(fdclient, response.c_str(), response.size());
+        mapClient[fdclient].setflagResponse(true);
+        return;
+    }
+    mapClient[fdclient].get_a_file().read(buffer, sizeof(buffer) - 1);
+    write(fdclient, buffer, mapClient[fdclient].get_a_file().gcount());
+    if (mapClient[fdclient].get_a_file().eof() || mapClient[fdclient].get_a_file().fail() || mapClient[fdclient].get_a_file().gcount() == 0)
+    {
+        std::cout<<"111111111111111111111111111111111111111111\n";
+        mapClient[fdclient].get_a_file().close();
+        std::cout<<"fdclient:"<<fdclient<<"\n";
+        close(fdclient);
+    }
 }

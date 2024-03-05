@@ -3,7 +3,7 @@
 Location::Location() {
     root = "/";
     redirUrl = "";
-    maxClientBodySizeSet = 1;
+    maxClientBodySizeSet = 0;
     rootSet = false;
     indexSet = false;
     maxClientBodySizeSet = false;
@@ -38,6 +38,7 @@ Location &Location::operator=(const Location &other) {
         proxy_read_timeout = other.proxy_read_timeout;
         client_max_body_size = other.client_max_body_size;
         redirUrl = other.redirUrl;
+        index = other.index;
 
         rootSet = other.rootSet;
         indexSet = other.indexSet;

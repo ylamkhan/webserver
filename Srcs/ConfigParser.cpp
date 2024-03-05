@@ -376,6 +376,10 @@ void ConfigParser::saveMethods(Location &location, std::vector<std::string> &lin
                     location.setIMethods(1);
                 else if (method == "DELETE")
                     location.setIMethods(2);
+                else {
+                    std::cerr << "Zineb: Invalid method." << std::endl;
+                    exit(1);
+                }
             }
         } else {
             std::cerr << "Zineb: Missing closing bracket in methods entry." << std::endl;
@@ -479,7 +483,6 @@ void ConfigParser::saveCgiPaths(Location &location, std::vector<std::string> &li
             std::istringstream iss(line.substr(openingBracketPos + 1, closingBracketPos - openingBracketPos - 1));
             std::string cgiPath, executable;
             char delimiter;
-            iss >> delimiter;
             iss >> delimiter;
 
             std::getline(iss, cgiPath, ',');
@@ -689,7 +692,7 @@ void ConfigParser::saveBodySize(Server &server, std::vector<std::string> &lines,
     value.erase(0, value.find_first_not_of(" \t"));
     value.erase(value.find_last_not_of(" \t") + 1);
 
-    size_t multiplier = 1;
+    size_t multiplier = 0;
     char suffix = value[value.size()-1];
     if (suffix == 'g' || suffix == 'G') {
         multiplier = 1024 * 1024 * 1024;
@@ -698,11 +701,13 @@ void ConfigParser::saveBodySize(Server &server, std::vector<std::string> &lines,
     } else if (suffix == 'k' || suffix == 'K') {
         multiplier = 1024;
     } else if (suffix != 'b' && suffix != 'B') {
+        multiplier = 1;
+    } else {
         std::cerr << "Zineb: Invalid suffix in client_max_body_size value." << std::endl;
         exit(1);
     }
 
-    if (multiplier != 1) {
+    if (multiplier != 0) {
         if (!value.empty()) {
             value.erase(value.size() - 1);
         }
@@ -727,101 +732,107 @@ void ConfigParser::saveBodySize(Server &server, std::vector<std::string> &lines,
 
 void ConfigParser::savePort(Server &server, std::vector<std::string> &lines, size_t *i)
 {
-    std::string prefix = "    port:";
-    std::string line = lines[*i];
-
-    std::string value = line.substr(prefix.length());
-    
-    value.erase(0, value.find_first_not_of(" \t"));
-    value.erase(value.find_last_not_of(" \t") + 1);
-    
-    if (value.empty() || value.find_first_not_of("0123456789") != std::string::npos) {
-        std::cerr << "Zineb: Invalid port value." << std::endl;
-        exit(1);
-    }
-
-    int p = std::atoi(value.c_str());
-    //std::cout<<p<<"************\n";
-    if (p > USHRT_MAX)
+    if (!server.isPortSet())
     {
-        std::cerr << "Value exceeds the limits of unsigned short!" << std::endl;
-        exit(1);
+        std::string prefix = "    port:";
+        std::string line = lines[*i];
+
+        std::string value = line.substr(prefix.length());
+        
+        value.erase(0, value.find_first_not_of(" \t"));
+        value.erase(value.find_last_not_of(" \t") + 1);
+        
+        if (value.empty() || value.find_first_not_of("0123456789") != std::string::npos) {
+            std::cerr << "Zineb: Invalid port value." << std::endl;
+            exit(1);
+        }
+
+        int p = std::atoi(value.c_str());
+        if (p > USHRT_MAX)
+        {
+            std::cerr << "Value exceeds the limits of unsigned short!" << std::endl;
+            exit(1);
+        }
+        server.setPort(p);
+        server.setportSet(true);
     }
-    server.setPort(p);
-    // if (!server.isPort()) {
-    //     server.setmaxClientBodySizeSet(true)
-    // } else {
-    //     std::cerr << "Zineb: Multiple port values specified." << std::endl;
-    //     exit(1);
-    // }
+    else {
+            std::cerr << "Zineb: Multiple port values specified." << std::endl;
+            exit(1);
+    }
 }
 
 void ConfigParser::saveHost(Server &server, std::vector<std::string> &lines, size_t *i) {
-    std::string prefix = "    host:";
-    std::string line = lines[*i];
-    std::string value = line.substr(prefix.length());
-    value.erase(0, value.find_first_not_of(" \t"));
-    value.erase(value.find_last_not_of(" \t") + 1);
+    if (!server.isHostSet())
+    {
+        std::string prefix = "    host:";
+        std::string line = lines[*i];
+        std::string value = line.substr(prefix.length());
+        value.erase(0, value.find_first_not_of(" \t"));
+        value.erase(value.find_last_not_of(" \t") + 1);
 
-    std::transform(value.begin(), value.end(), value.begin(), ::toupper);
-    if (value == "LOCALHOST")
-        value = "127.0.0.1";
-    if (value.empty()) {
-        std::cerr << "Zineb: Invalid host value." << std::endl;
-        exit(1);
-    }
-
-    std::istringstream iss(value);
-    std::string segment;
-    std::vector<std::string> segments;
-    while (std::getline(iss, segment, '.')) {
-        segments.push_back(segment);
-    }
-
-    if (segments.size() != 4) {
-        std::cerr << "Zineb: Invalid host value. Must contain 4 segments separated by dots or localhost." << std::endl;
-        exit(1);
-    }
-
-    size_t ip_address = 0;
-    for (size_t i = 0; i < segments.size(); ++i) {
-        const std::string& segment = segments[i];
-        if (segment.empty() || segment.find_first_not_of("0123456789") != std::string::npos) {
-            std::cerr << "Zineb: Invalid host value. Each segment must be a number." << std::endl;
+        std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+        if (value == "LOCALHOST")
+            value = "127.0.0.1";
+        if (value.empty()) {
+            std::cerr << "Zineb: Invalid host value." << std::endl;
             exit(1);
         }
-        int num = std::atoi(segment.c_str());
-        if (num < 0 || num > 255) {
-            std::cerr << "Zineb: Invalid host value. Each segment must be between 0 and 255." << std::endl;
+
+        std::istringstream iss(value);
+        std::string segment;
+        std::vector<std::string> segments;
+        while (std::getline(iss, segment, '.')) {
+            segments.push_back(segment);
+        }
+
+        if (segments.size() != 4) {
+            std::cerr << "Zineb: Invalid host value. Must contain 4 segments separated by dots or localhost." << std::endl;
             exit(1);
         }
-        ip_address = (ip_address * 256) + num;
-    }
 
-    // if (server.getHost().empty() && !server.isHostSet()) {
+        size_t ip_address = 0;
+        for (size_t i = 0; i < segments.size(); ++i) {
+            const std::string& segment = segments[i];
+            if (segment.empty() || segment.find_first_not_of("0123456789") != std::string::npos) {
+                std::cerr << "Zineb: Invalid host value. Each segment must be a number." << std::endl;
+                exit(1);
+            }
+            int num = std::atoi(segment.c_str());
+            if (num < 0 || num > 255) {
+                std::cerr << "Zineb: Invalid host value. Each segment must be between 0 and 255." << std::endl;
+                exit(1);
+            }
+            ip_address = (ip_address * 256) + num;
+        }
+
         server.setHost(value);
         server.sethostSet(true);
-    // } else {
-    //     std::cerr << "Zineb: Multiple host values specified." << std::endl;
-    //     exit(1);
-    // }
+    }
+    else {
+        std::cerr << "Zineb: Multiple host values specified." << std::endl;
+        exit(1);
+    }
 }
 
 void ConfigParser::saveRoot(Server &server, std::vector<std::string> &lines, size_t *i)
 {
-    std::string prefix = "    root: ";
-    std::string line = lines[*i];
-    if (server.getRoot() == "/")
-        server.setRoot(line.substr(prefix.length()));
-    else
+    if (!server.isRootSet())
     {
+        std::string prefix = "    root: ";
+        std::string line = lines[*i];
+
+        if (server.getRoot().find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890./_-") != std::string::npos) {
+            std::cerr << "Zineb: Invalid characters detected after the root directory path!" << std::endl;
+            exit(1);
+        }
+        server.setRoot(line.substr(prefix.length()));
+        server.setrootSet(true);
+    }
+    else {
         std::cerr << "Zineb: Multiple root values specified!!!." << std::endl;
         exit(1);
     }
-    if (server.getRoot().find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890./_-") != std::string::npos) {
-        std::cerr << "Zineb: Invalid characters detected after the root directory path!" << std::endl;
-        exit(1);
-    }  
 }
 
 void ConfigParser::saveErrorPages(Server &server, std::vector<std::string> &lines, size_t *i) {
@@ -843,6 +854,7 @@ void ConfigParser::saveErrorPages(Server &server, std::vector<std::string> &line
             std::cerr << "Zineb: Invalid format for error_pages entry." << std::endl;
             exit(1);
         }
+
         server.setErrorPages(errorCode, pagePath);
         server.seterrorPagesSet(true);
         (*i)++;

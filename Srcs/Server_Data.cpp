@@ -13,6 +13,7 @@ Server::Server() {
     redirUrlSet = false;
     autoIndexSet = false;
     cgiPathsSet = false;
+    portSet = false;
 }
 
 Server::Server(const Server &copy) {
@@ -39,13 +40,13 @@ Server &Server::operator=(const Server &other) {
         locations = other.locations;
 
         rootSet = other.rootSet;
+        portSet = other.portSet;
         indexSet = other.indexSet;
         maxClientBodySizeSet = other.maxClientBodySizeSet;
         methodsSet = other.methodsSet;
         errorPagesSet = other.errorPagesSet;
         redirUrlSet = other.redirUrlSet;
         autoIndexSet = other.autoIndexSet;
-        // sizel = other.sizel;
     }
     return (*this);
 }
@@ -106,6 +107,10 @@ vecSPair Server::getCgi() const {
 
 bool Server::isRootSet() const {
     return rootSet;
+}
+
+bool Server::isPortSet() const {
+    return portSet;
 }
 
 bool Server::isIndexSet() const {
@@ -197,6 +202,10 @@ void Server::setRedirUrl(std::string s) {
 
 void Server::setrootSet(bool b) {
     rootSet = b;
+}
+
+void Server::setportSet(bool b) {
+    portSet = b;
 }
 
 void Server::setindexSet(bool b) {

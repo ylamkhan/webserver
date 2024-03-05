@@ -27,6 +27,7 @@ class Server {
         bool serverNamesSet;
 
         bool rootSet;
+        bool portSet;
         bool indexSet;
         bool maxClientBodySizeSet;
         bool methodsSet;
@@ -70,6 +71,7 @@ class Server {
         void setLocation(Location loc);
 
         void setrootSet(bool b);
+        void setportSet(bool b);
         void setindexSet(bool b);
         void setmaxClientBodySizeSet(bool b);
         void setmethodsSet(bool b);
@@ -81,6 +83,7 @@ class Server {
         void setServerNamesSet(bool b);
 
         bool isRootSet() const;
+        bool isPortSet() const;
         bool isIndexSet() const;
         bool isMaxClientBodySet() const;
         bool isMethodsSet() const;

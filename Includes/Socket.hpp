@@ -35,6 +35,7 @@ class Socket
         void handleConnections();
         void setMapClient(int fd, Client &c);
         std::map<int, Client> getMapClient() const;
+        void send_client(int fdclient);
 };
 
 #endif

@@ -5,7 +5,7 @@ servers:
     host: 127.0.0.1
     root: www/
     error_pages:
-      - 404: /error_pages/404.html
+      - 400: /error_pages/404.html
       - 500: /error_pages/500.html
     autoindex: on
     methods: [GET, POST, DELETE]
@@ -18,7 +18,7 @@ servers:
 
     locations:
       - path: /static/webservj
-        root: ww
+        root: www
         list: ON
         upload: ON
         autoindex: on
