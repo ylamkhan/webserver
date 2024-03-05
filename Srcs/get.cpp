@@ -200,31 +200,6 @@ int Client::checkforCgi(std::string type)
     return 0;
 }
 
-// void    Client::readFile(std::string u)
-// {
-//     (void)u;
-//     char buffer[1024];
-
-//     if (!flagResponse)
-//     {
-//         std::string response;
-//         response = "HTTP/1.1 200 OK\r\n"
-//                         "Content-Type: text/html\r\n\r\n";
-//         write(sockfd, response.c_str(), response.size());
-//         flagResponse = true;
-//         return ;
-//     }
-//     a_file.read(buffer, sizeof(buffer) - 1);
-//     if (a_file.eof())
-//     {
-//         std::cout << "close fd " << std::endl;
-//         a_file.close();
-//         flag_in_out = true;
-//     }
-//     write(sockfd, buffer, sizeof(buffer));
-
-// }
-
 void Client::get()
 {
     if (!Opened)
@@ -239,7 +214,6 @@ void Client::get()
         else
         {
             a_file.open(url.c_str(), std::ios::in | std::ios::binary);
-            std::cout << "file: " << url << std::endl;
             if (a_file.is_open())
             {
                 isFile = true;
@@ -252,19 +226,16 @@ void Client::get()
             message = "404 Not Found";
             status = 404;
             flag_in_out = true;
-            // close(sockfd);
             return ;
         }
     }
     if (isDir)
     {
-        std::cout << "test\n";
         Location loc = servers[sindex].getLocations()[lindex];
         if (loc.getAutoIndex())
         {
             if (loc.isIndexSet())
             {
-                std::cout << "test\n";
                 for (size_t i = 0; i < loc.getIndex().size(); i++)
                 {
                     getUrl = url;
@@ -274,7 +245,7 @@ void Client::get()
                     size_t t = getUrl.rfind(".");
                     if(t != std::string::npos)
                         type = getUrl.substr(t);
-                    
+                    std::cout<<getUrl<<"=\n";
                     if (loc.getCgi().size())
                     {
                         if (checkforCgi(type) && !cgiflag)
@@ -289,11 +260,26 @@ void Client::get()
                     a_file.open(getUrl.c_str(), std::ios::in | std::ios::binary);
                     if (a_file.is_open())
                     {
-                        // startRead = true;
                         flag_in_out = true;
                         break;
                     }
-                    
+                    else
+                    {
+                        if(loc.getList() == "ON")
+                        {
+                            listing = true;
+                            flag_in_out = true;
+                            return ;
+                        }
+                        else
+                        {
+                            message = "404 Not Found";
+                            status = 404;
+                            flag_in_out = true;
+                            return ;
+                        
+                        }
+                    }
                 }
             }
         }

@@ -140,13 +140,13 @@ class Client {
         int checkMethod();
         int is_req_well_formed();
 
-        void    readFile(std::string u);
         void    listDir();
         bool getflagResponse();
         void setflagResponse(bool t);
         std::ifstream &get_a_file();
         void send_client();
         bool getClosed() const;
+        void readFile(std::string file);
 
         /**********************************/
 };

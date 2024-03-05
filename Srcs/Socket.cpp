@@ -138,8 +138,6 @@ void Socket::handleConnections()
                 }
                 else if( events[i].data.fd  & EPOLLOUT && mapClient[events[i].data.fd].get_flag_in_out())
                 {
-                    std::cout << "*****************************************\n";
-                    std::cout << "=====================================================\n";
                     mapClient[events[i].data.fd].send_client();
                     //hna khdmna b var sockfd hit ila closina lfd raymchi mn events
                     if (mapClient[sockfd].getClosed())

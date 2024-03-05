@@ -16,7 +16,6 @@ void Client::cgi(std::string u)
     std::string f = "REDIRECT_STATUS=CGI";
     std::string g = "HTTP_COOKIE=" + headers["Cookie"];
     std::string h = "PATH_INFO=" + path;
-    std::cout<<path<<"+++++++++++++\n";
 
     char *env[]= {
         (char *)a.c_str(),
@@ -45,19 +44,22 @@ void Client::cgi(std::string u)
     }
     else if (pid == 0)
     {
-        int fd1 = open(url.c_str(), O_RDONLY);
+        int fd1 = open(u.c_str(), O_RDONLY);
         if (fd1 < 0)
         {
             std::cerr << "Failed to open file for reading." << std::endl;
             exit(EXIT_FAILURE);
         }
-        int fd_result = open((u.substr(u.find_last_of('/')) + "result.txt").c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+        int fd_result = open((u.substr(0,u.find_last_of('/')+1) + "result.txt").c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+        std::cout <<u.substr(u.find_last_of('/')) + "result.txt"<<"\n";
         if (fd_result < 0)
         {
             std::cerr << "Failed to open result file for writing." << std::endl;
             exit(EXIT_FAILURE);
         }
-
+        //store path of cgi file result
+        cgiUrl = u.substr(0,u.find_last_of('/')+1) + "result.txt";
+        std::cout<<"cgi:"<<cgiUrl << "******************************\n";
         if (dup2(fd_result, STDOUT_FILENO) == -1)
         {
             std::cerr << "Failed to redirect stdout to result file." << std::endl;

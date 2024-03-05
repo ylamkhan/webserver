@@ -21,9 +21,9 @@ servers:
         root: www
         list: ON
         upload: ON
-        autoindex: OFF
+        autoindex: ON
         methods: [GET]
-        index: [index.html]
+        index: [p.py]
         error_pages:
           - 404: /error_pages/404.html
           - 500: /error_pages/500.html

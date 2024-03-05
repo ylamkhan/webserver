@@ -221,9 +221,14 @@ void Client::send_client()
             listDir();}
         else
         {
+            if (cgiflag)
+            {
+                // std::cout<<cgiUrl<<"----------------\n";
+                a_file.open((getUrl.substr(0,getUrl.find_last_of('/')+1) + "result.txt").c_str(), std::ios::in | std::ios::binary);
+                cgiflag = false;
+            }
             if (Opened)
             {
-
                 size_t t = url.rfind(".");
                 std::string typa;
                 if(t != std::string::npos)
@@ -262,9 +267,9 @@ void Client::send_client()
                 a_file.read(buffer, sizeof(buffer) - 1);
                int a = write(sockfd, buffer, a_file.gcount());
                if(a <= 0)
-                    {
-                        perror("er2: ");
-                    }
+                {
+                    perror("er2: ");
+                }
                 if (a_file.eof() || a_file.fail() || a_file.gcount() == 0)
                 {
                     a_file.close();
