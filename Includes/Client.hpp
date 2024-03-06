@@ -96,6 +96,7 @@ class Client {
         std::string message;
         bool listing;
         bool closed;
+        bool can_open;
 
     public:
         Client(){};
@@ -150,6 +151,7 @@ class Client {
         void send_client();
         bool getClosed() const;
         void readFile(std::string file);
+        void remove_directory_file(const std::string& name);
 
         /**********************************/
 };

@@ -8,6 +8,12 @@
 #include "../Includes/Client.hpp"
 #include<signal.h>
 
+std::string to_string(int value)
+{
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
 
 Client::Client(std::vector<Server> &servers):servers(servers)
 {
@@ -31,6 +37,7 @@ Client::Client(std::vector<Server> &servers):servers(servers)
     cgiUrl = "";
     getUrl = "";
     status = 200;
+    can_open = false;
 }
 
 Client::~Client() {}
@@ -284,20 +291,30 @@ void Client::send_client()
     }
     else if (method == "POST")
     {
-        std::string message = "Sucess ";
-        std::string response = "HTTP/1.1 200 OK \r\nContent-Type: text/html\r\n\r\n<html><body><h1>" + message + "</h1></body></html>\r\n";
- 
+        //poooooost ghalta ... rah dik ok ghe f succes;
+        std::string msg;
+        if(status == 201)
+            msg = "Sucess ";
+        else 
+            msg = "Failed";
+        std::string response = "HTTP/1.1 200 OK \r\nContent-Type: text/html\r\n\r\n<html><body><h1>" + msg + "</h1></body></html>\r\n";
         write(sockfd, response.c_str(), response.size());
-        // flag wach n upload ola la;
         close(sockfd);
         closed = true;
     }
     else if (method == "DELETE")
-    {
-        std::string response = "HTTP/1.1 204 No Content\r\n\r\n";
-
-       //if(matsuprimatch )  ==> std::string response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Resource Not Found</h1></body></html>\r\n";
-
+    {       
+        std::cout << status << "\n";
+        std::string msg = "succes";
+        std::string response;
+        if(status == 204) 
+        {
+            response = "HTTP/1.1 " + to_string(status) + " \r\nContent-Type: text/html\r\n\r\n<html><body><h1>succes</h1></body></html>\r\n";
+        }       
+        else 
+        {
+            response = "HTTP/1.1 " + to_string(status) + " \r\nContent-Type: text/html\r\n\r\n<html><body><h1>Error</h1></body></html>\r\n";
+        }
         write(sockfd, response.c_str(), response.size());
         close(sockfd);
         closed = true;
