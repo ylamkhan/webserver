@@ -134,9 +134,10 @@
 
 #include "../Includes/Client.hpp"
 
-
 void Client::open_file()
 {
+    Location loc = servers[sindex].getLocations()[lindex];
+    std::cout<<loc.getLocationPath()<<"************\n";
     if(servers[sindex].getLocations()[lindex].getUpload() == "ON")
     {
         std::map<std::string, std::string >::iterator it;
@@ -153,11 +154,24 @@ void Client::open_file()
         {
             extension = at->second;
         }
+        if (loc.getCgi().size())
+        {
+            std::cout<<value_type<<"*_______\n";
+            if (checkforCgi(extension) && !cgiflag)
+            {
+                // tmpfilename = "Srcs/upload/tmpfile" + extension;
+                // tmpfile.open(n.c_str(), std::ios:app);
+                cgiflag = true;
+                //cgi(getUrl);
+            }
+        }
+        std::cout<<extension<<"::::\n";
         std::string name;
         if (!flag_open)
         {
             name_file += "t";
-            name = "Srcs/upload/" + name_file + extension;  
+            //hada khasna nmshoh bidina mni nsaliw
+            name = "Srcs/upload/tmpfile" + extension;  
             file.open(name.c_str(), std::ios::app);
             flag_open = true;
         }
@@ -239,6 +253,8 @@ void Client::post()
                 file.write(body.c_str(), body.size());
                 flag_in_out = true;
                 file.close();
+                if (cgiflag)
+                    cgi("Srcs/upload/tmpfile.py");
                 return;
             }
        
@@ -259,6 +275,9 @@ void Client::post()
                 file.write(body.c_str(), body.size());
                 flag_in_out = true;
                 file.close();
+                //zizoooooooooooooooooooooooooo
+                if (cgiflag)
+                    cgi("Srcs/upload/tmpfile.py");
                 return;
             }
         }
@@ -268,13 +287,16 @@ void Client::post()
         bodySize += body.size();
         file.write(body.c_str(), body.size());
         if(bodySize   >= (size_t)atoi(headers["Content-Length"].c_str()))
-            {
-               
-                file.write(body.c_str(), body.size());
-                flag_in_out = true;
-                file.close();
-                return;
-            }
+        {
+            
+            file.write(body.c_str(), body.size());
+            flag_in_out = true;
+            file.close();
+            //zizoooooooooooooooooooooooooo
+            if (cgiflag)
+                cgi("Srcs/upload/tmpfile.py");
+            return;
+        }
 
            
     }

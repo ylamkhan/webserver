@@ -14,6 +14,7 @@ void	Client::store_type(void)
 	mime_type["application/pdf"] = ".pdf";	
 	mime_type["audio/mpeg"] = ".mp3";
 	mime_type["video/mp4"] = ".mp4";
+	mime_type["application/octet-stream"] = ".py";
 }
 
 

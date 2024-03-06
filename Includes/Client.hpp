@@ -37,6 +37,9 @@ class Client {
     private:
         int sockfd;
         std::ofstream file;
+        // std::string name;
+        std::ofstream tmpfile;
+        std::string tmpfilename;
         std::ifstream a_file;
         std::string url;
         DIR *dir;

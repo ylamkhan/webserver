@@ -223,19 +223,17 @@ void Client::send_client()
         {
             if (cgiflag)
             {
-                // std::cout<<cgiUrl<<"----------------\n";
                 a_file.open((getUrl.substr(0,getUrl.find_last_of('/')+1) + "result.txt").c_str(), std::ios::in | std::ios::binary);
                 cgiflag = false;
             }
             if (Opened)
             {
-                size_t t = url.rfind(".");
+                size_t t = getUrl.rfind(".");
                 std::string typa;
                 if(t != std::string::npos)
                 {
-                    typa = url.substr(t);
+                    typa = getUrl.substr(t);
                 }
-    
                 store_type();
                 std::string Content_typa; 
                 std::map<std::string, std::string>::iterator it;
@@ -265,8 +263,8 @@ void Client::send_client()
                     return;
                 }
                 a_file.read(buffer, sizeof(buffer) - 1);
-               int a = write(sockfd, buffer, a_file.gcount());
-               if(a <= 0)
+                int a = write(sockfd, buffer, a_file.gcount());
+                if(a <= 0)
                 {
                     perror("er2: ");
                 }

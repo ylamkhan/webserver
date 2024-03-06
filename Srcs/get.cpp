@@ -218,20 +218,20 @@ void Client::get()
             {
                 isFile = true;
                 Opened = true;
+                a_file.close();
             }
         }
         if (!Opened)
         {
-            std::cout << "file: " << url << std::endl;
             message = "404 Not Found";
             status = 404;
             flag_in_out = true;
             return ;
         }
     }
+    Location loc = servers[sindex].getLocations()[lindex];
     if (isDir)
     {
-        Location loc = servers[sindex].getLocations()[lindex];
         if (loc.getAutoIndex())
         {
             if (loc.isIndexSet())
@@ -245,12 +245,10 @@ void Client::get()
                     size_t t = getUrl.rfind(".");
                     if(t != std::string::npos)
                         type = getUrl.substr(t);
-                    std::cout<<getUrl<<"=\n";
                     if (loc.getCgi().size())
                     {
                         if (checkforCgi(type) && !cgiflag)
                         {
-                            startRead = true;
                             cgiflag = true;
                             cgi(getUrl);
                             flag_in_out = true;
@@ -299,11 +297,25 @@ void Client::get()
                 return ;
             
             }
-    }
-    
+        }
     }
     else if (isFile)
     {
+        size_t t = url.rfind(".");
+        if(t != std::string::npos)
+            type = url.substr(t);
+        if (loc.getCgi().size())
+        {
+            if (checkforCgi(type) && !cgiflag)
+            {
+                getUrl = (url.substr(0,url.find_last_of('/')+1) + "result.txt");
+                // startRead = true;
+                cgiflag = true;
+                cgi(url);
+            }
+        }
+        if (!cgiflag)
+            getUrl = url;
         flag_in_out = true;
     }
     else
@@ -320,7 +332,6 @@ void    Client::listDir()
     response = "HTTP/1.1 200 OK\r\n"
                     "Content-Type: text/html\r\n\r\n";
 
-            std::cout<<"path:"<<path<<"*\n";
     while ((entry = readdir(dir)) != NULL) 
     {
         std::string entry_name = entry->d_name;

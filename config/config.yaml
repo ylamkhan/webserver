@@ -40,6 +40,10 @@ servers:
         methods: [GET]
         list: OFF
         autoindex: on
+        cgi_paths:
+          - [.py, /usr/bin/python3]
+          - [.php, /usr/bin/php-cgi]
+          - [.sh, /usr/bin/bash]
 
   - listen:
     server_name: zineb
