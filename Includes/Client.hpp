@@ -42,6 +42,7 @@ class Client {
         std::string tmpfilename;
         std::ifstream a_file;
         std::string url;
+        std::pair<std::string, std::string> hcgi;
         DIR *dir;
 
         std::vector<Server> servers;
@@ -97,6 +98,8 @@ class Client {
         bool listing;
         bool closed;
         bool can_open;
+        bool isCgi;
+        std::string headersCgi;
 
     public:
         Client(){};
@@ -152,6 +155,8 @@ class Client {
         bool getClosed() const;
         void readFile(std::string file);
         void remove_directory_file(const std::string& name);
+        std::string parseFile(std::string f);
+        // void parse_headers(std::string headersCgi);
 
         /**********************************/
 };

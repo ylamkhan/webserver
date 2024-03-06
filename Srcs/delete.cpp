@@ -133,7 +133,7 @@ void Client::remove_directory_file(const std::string& name)
                 {
                     std::cout << "heeloo \n";
                 }
-                status = 404; ///// >??gha dertha test osf
+              //  status = 404; ///// >??gha dertha test osf
                 flag_in_out = true;
             }
         
@@ -146,8 +146,8 @@ void Client::remove_directory_file(const std::string& name)
                     if (std::remove(name.c_str()) == 0)
                     {
                         std::cout << "tees\n";
-                        status = 201; ///??????
-                        message = "No Content";
+                        status = 204; ///??????
+                       
                         flag_in_out = true;
                     }
                 }
@@ -191,3 +191,5 @@ void Client::web_delete()
     remove_directory_file(url);
   
 }
+
+// nkhdem b stat

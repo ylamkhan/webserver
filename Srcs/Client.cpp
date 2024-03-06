@@ -20,6 +20,7 @@ Client::Client(std::vector<Server> &servers):servers(servers)
     sindex = 0;
     lindex = 0;
     flag_in_out = false;
+    isCgi = false;
     cgiflag = false;
     flag_open = false;
     Opened = false;
@@ -44,6 +45,7 @@ Client::~Client() {}
 
 Client &Client::operator=(Client const &other)
 {
+    isCgi = other.isCgi;
     closed = other.closed;
     listing = other.listing;
     flagResponse = other.flagResponse;
@@ -84,6 +86,7 @@ Client &Client::operator=(Client const &other)
     lindex = other.lindex;
     message = other.message;
     status = other.status;
+    hcgi = other.hcgi;
     return *this;
 }
 
@@ -218,6 +221,34 @@ void Client::setflagResponse(bool t)
     flagResponse = t;
 }
 
+// std::string Client::parseFile(std::string f)
+// {
+//     std::ifstream fil(f);
+
+//     if (fil.is_open())
+//     {
+//         std::getline(fil, headersCgi, "\r\n\r\n");
+//         std::cout<<headersCgi<<"*****************************************\n";
+//     }
+//     return f;
+// }
+
+// void Client::parse_headers(std::string headersCgi)
+// {
+//     // std::istringstream iss(headersCgi);
+//     // while (1)
+//     // { 
+//     //     std::getline(iss,hcgi.first,':');
+//     //     std::getline(iss,hcgi.second,';');
+//     //     if (hcgi.first == "Content-type")
+//     //         Content_typa = ltrim(hcgi.second);
+//     //     std::string temp;
+//     //     iss >>temp;
+//     //     if(temp.empty())
+//     //         break;
+//     // }
+// }
+
 void Client::send_client()
 {
     if (method == "GET")
@@ -230,7 +261,8 @@ void Client::send_client()
         {
             if (cgiflag)
             {
-                a_file.open((getUrl.substr(0,getUrl.find_last_of('/')+1) + "result.txt").c_str(), std::ios::in | std::ios::binary);
+                isCgi = true;
+                a_file.open((getUrl.substr(0,getUrl.find_last_of('/')+1 )+ "result.txt").c_str(), std::ios::in | std::ios::binary);
                 cgiflag = false;
             }
             if (Opened)
@@ -256,8 +288,21 @@ void Client::send_client()
                 }
                 char buffer[1024] = {0};
 
+                a_file.read(buffer, sizeof(buffer) - 1);
+
+                std::string s(buffer, sizeof(buffer));
+                //std::cout << "-----------------------------------\n" << buffer << "-----------\n";
+
+                if (isCgi && s.find("\r\n\r\n") != std::string::npos)
+                {
+                    headersCgi = s.substr(0, s.find("\r\n\r\n"));
+                    s = s.substr(s.find("\r\n\r\n")+4);
+                    //parse_headers(headersCgi);
+                    Content_typa = "text/html";
+                }
                 if (!flagResponse)
                 {
+                    std::cout<<Content_typa<<"\n";
                     std::string response;
                     response = "HTTP/1.1 200 OK\r\n"
                                     "Content-Type: " + Content_typa + "\r\n\r\n";
@@ -267,10 +312,9 @@ void Client::send_client()
                         perror("er1: ");
                     }
                     flagResponse = true;
-                    return;
+                    // return;
                 }
-                a_file.read(buffer, sizeof(buffer) - 1);
-                int a = write(sockfd, buffer, a_file.gcount());
+                int a = write(sockfd, s.c_str(), a_file.gcount());
                 if(a <= 0)
                 {
                     perror("er2: ");
@@ -307,13 +351,15 @@ void Client::send_client()
         std::cout << status << "\n";
         std::string msg = "succes";
         std::string response;
+        std::cout << status << "\n";
+        
         if(status == 204) 
         {
-            response = "HTTP/1.1 " + to_string(status) + " \r\nContent-Type: text/html\r\n\r\n<html><body><h1>succes</h1></body></html>\r\n";
+            response = "HTTP/1.1 " + to_string(status) + " \r\nContent-Type: text/html\r\n\r\n";
         }       
         else 
         {
-            response = "HTTP/1.1 " + to_string(status) + " \r\nContent-Type: text/html\r\n\r\n<html><body><h1>Error</h1></body></html>\r\n";
+            response = "HTTP/1.1 " + to_string(status) + " \r\nContent-Type: text/html\r\n\r\n";
         }
         write(sockfd, response.c_str(), response.size());
         close(sockfd);

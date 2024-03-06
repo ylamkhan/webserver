@@ -57,8 +57,8 @@ void    Client::parseRequest(const std::string& httpRequest)
         std::istringstream iss(requestStr.substr(pos, end - pos));
         std::getline(iss,path,'?');
         iss>>query;
-        if (!query.empty())
-            query = "?" + query;
+        // if (!query.empty())
+        //     query = "?" + query;
         pos = end + 1;
         end = requestStr.find("\r\n", pos);
         httpVersion = requestStr.substr(pos, end - pos);

@@ -315,7 +315,10 @@ void Client::get()
             }
         }
         if (!cgiflag)
+        {
+            a_file.open(url.c_str(), std::ios::in | std::ios::binary);
             getUrl = url;
+        }
         flag_in_out = true;
     }
     else
