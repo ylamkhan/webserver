@@ -36,7 +36,7 @@ servers:
 
       - path: /
         root: www
-        upload: ON
+        upload: OFF
         methods: [GET]
         list: OFF
         autoindex: on

@@ -258,9 +258,24 @@ void Client::parse_header(std::string headersCgi)
 
 void Client::send_client()
 {
+    if(status == 404)
+    {
+        std::string response;
+        response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n";
+        write(sockfd, response.c_str(), response.size());
+        close(sockfd);
+    }
+    if (status == 301)
+    {
+        std::string newLocation = "Location: " + servers[sindex].getLocations()[lindex].getRedirUrl() + "\r\n";
+        std::string response = "HTTP/1.1 301 Moved Permanently\r\n" + newLocation + "Content-Length: 0\r\n\r\n";
+        write(sockfd, response.c_str(), response.size());
+        close(sockfd);
+    }
     if (method == "GET")
     {
         signal(SIGPIPE,SIG_IGN);
+
         if (listing)
         {
             listDir();}
@@ -359,9 +374,18 @@ void Client::send_client()
                 response = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\r\n\r\n";
                 
             }
-            else if (status == 404) 
+            else if (status == 404)
             {
                 response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n";
+            }
+            else if (status == 501)
+            {
+                response = "HTTP/1.1 501 Not Impelemnted\r\nContent-Type: text/html\r\n\r\n";
+            }
+            else if (status == 400)
+            {
+                response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\n\r\n<html><body><h1>400 Bad Request</h1><p>Your request could not be understood by the server.</p></body></html>";
+                //response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\n\r\n";
             }
             else
             {
@@ -373,10 +397,8 @@ void Client::send_client()
     }
     else if (method == "DELETE")
     {       
-        std::cout << status << "\n";
         std::string msg = "succes";
         std::string response;
-        std::cout << status << "\n";
         
         if(status == 204) 
         {
@@ -397,8 +419,7 @@ void Client::send_client()
     }
     else 
     {
-        std::string msg = "Method Not Implemented";
-        std::string response = "HTTP/1.1 501 Not Implemented\r\nContent-Type: text/plain\r\n\r\n" + msg + "\r\n";
+        std::string response = "HTTP/1.1 501 Not Implemented\r\nContent-Type: text/html\r\n\r\n";
         write(sockfd, response.c_str(), response.size());
         close(sockfd);
         closed = true;

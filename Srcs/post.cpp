@@ -24,11 +24,8 @@ void Client::open_file()
         if (!flag_open)
         {
             name_file += "t";
-            //hada khasna nmshoh bidina mni nsaliw
             name = "./Srcs/upload/" + name_file + extension; 
             file.open(name.c_str(), std::ios::app);
-            
-            // exit(111);
             flag_open = true;
         }
         status =  201;
@@ -64,10 +61,10 @@ void Client::post()
     //------------------exit+message+fdffdffd;
     //else 
     // std::cout<<reqURL<<"\n";
+    open_file();
     if (!isDirectory(("./Srcs/" + reqURL).c_str()))
     {
         Location loc = servers[sindex].getLocations()[lindex];
-        std::cout<<loc.getLocationPath()<<"***********\n";
         if (loc.getCgi().size())
         {
             size_t t = reqURL.rfind(".");
@@ -136,7 +133,6 @@ void Client::post()
             {
                 std::string put = save.substr(0,save.find("\r\n0\r\n")); 
                 file.write(put.c_str(), put.size());
-                std::cout << "true \n";
                 flag_in_out = true;
                 file.close();
                 return;
@@ -145,7 +141,6 @@ void Client::post()
         }
         else
         {
-            // len body  > chunks;
             size_t f = body.find("\r\n0\r\n") ;
             if( f != std::string::npos)
             {

@@ -30,7 +30,6 @@ void    Client::parseRequest(const std::string& httpRequest)
     }
     if (!headerSet)
         setReqStr(httpRequest);
-    //tim
     if (!headerSet && requestStr.find("\r\n\r\n", 0) != std::string::npos)
     {
         size_t pos = 0;
@@ -43,22 +42,11 @@ void    Client::parseRequest(const std::string& httpRequest)
         }
         end = requestStr.find(' ');
         method = requestStr.substr(pos, end - pos);
-        //// 
         pos = end + 1;
         end = requestStr.find(' ', pos);
-        // size_t p = requestStr.find("?");
-        // size_t end1 = end;
-        // if (p != std::string::npos)
-        // {
-        //     query = requestStr.substr(p, end - p);
-        //     end1 = p;
-        // }
-        // path = requestStr.substr(pos, end1 - pos);
         std::istringstream iss(requestStr.substr(pos, end - pos));
         std::getline(iss,path,'?');
         iss>>query;
-        // if (!query.empty())
-        //     query = "?" + query;
         pos = end + 1;
         end = requestStr.find("\r\n", pos);
         httpVersion = requestStr.substr(pos, end - pos);
@@ -81,8 +69,6 @@ void    Client::parseRequest(const std::string& httpRequest)
             flag_in_out = true;
             return ;
         }
-        if(method == "POST")
-            open_file();
     
         std::string hel = requestStr.substr(ch);
         chunks_size = hel.find("\r\n");
@@ -117,11 +103,25 @@ void    Client::parseRequest(const std::string& httpRequest)
         if(!matching_servers())
         {
             flag_in_out = true;
+            status = 404;
             message = "404 Not Found";
-            std::cerr<<"Error: not found location\n";
             return ;
         }
-        std::cout<<cgiUrl<<";;"<<getUrl<<";;;"<<reqURL<<"\n";
+         Location loc = servers[sindex].getLocations()[lindex];
+        if (loc.isRedirUrlSet())
+        {
+            status = 301;
+            message = "301 Moved Permanently";
+            flag_in_out = true;
+            return;
+        }
+        if(!checkMethod())
+        {
+            flag_in_out = true;
+            message = "501 Not Impelemnted.";
+            status = 501;
+            return ;
+        }
         handl_methodes();
     }
 }
@@ -140,35 +140,52 @@ int getMethodIndex(std::string method)
 int Client::checkMethod()
 {
     std::vector<int> methods = servers[sindex].getLocations()[lindex].getMethods();
-    for (size_t i = 0; i < methods.size(); i++)
+    if(methods.size())
     {
-        if (getMethodIndex(method) == methods[i])
-            return 1;
+        for (size_t i = 0; i < methods.size(); i++)
+        {
+            if (getMethodIndex(method) == methods[i])
+                return 1;
+        }
+        return 0;
     }
-    return 1;
+    else
+    {
+        std::vector<int> methods = servers[sindex].getMethods();
+        for (size_t i = 0; i < methods.size(); i++)
+        {
+            if (getMethodIndex(method) == methods[i])
+                return 1;
+        }
+        return 0;
+    }
 }
 
 int Client::is_req_well_formed()
 {
     iter_map it = headers.find("Transfer-Encoding");
-    if(!checkMethod() || (it != headers.end() && method == "POST" && it->second != "chunked"))
+    if(it != headers.end() && method == "POST" && it->second != "chunked")
     {
         message = "501 Not Impelemnted.";
         status = 501;
         return 0;  
     }
-
     iter_map it1 = headers.find("Content-Length");
-    const std::string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&'()*+,;=%";
-    std::size_t found = path.find_first_not_of(allowedChars);
-    std::size_t found1 = query.find_first_not_of(allowedChars);
-    if((method == "POST" && ((it == headers.end() && it1 == headers.end()) || it1 == headers.end())) || (!path.empty() && found != std::string::npos) || (!query.empty() && found1 != std::string::npos))
+    if(method == "POST" && it == headers.end() && it1 == headers.end())
     {
         message = "400 Bad Requeset.";
         status = 400;
         return 0;
     }
-
+    const std::string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&'()*+,;=%";
+    std::size_t found = path.find_first_not_of(allowedChars);
+    std::size_t found1 = query.find_first_not_of(allowedChars);
+    if((!path.empty() && found != std::string::npos) || (!query.empty() && found1 != std::string::npos))
+    {
+        message = "400 Bad Requeset.";
+        status = 400;
+        return 0;
+    }
     if(path.length() + query.length() > 2048)
     {
         message = "414 Requeset-URL Too Long.";
@@ -188,13 +205,3 @@ int Client::is_req_well_formed()
 
     return 1; 
 }
-
-// int Client::get_method_location_for_request_url()
-// {
-//     if(matching_servers())
-//     {
-//         message = "404 Not Found.";
-//         status  = 404;
-//         return 0;
-//     }
-// }
