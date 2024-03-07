@@ -1,1 +1,0 @@
-Enter the first number: Enter the second number: The sum of 7.0 and 8.0 is: 15.0

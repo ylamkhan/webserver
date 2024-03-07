@@ -121,6 +121,7 @@ void    Client::parseRequest(const std::string& httpRequest)
             std::cerr<<"Error: not found location\n";
             return ;
         }
+        std::cout<<cgiUrl<<";;"<<getUrl<<";;;"<<reqURL<<"\n";
         handl_methodes();
     }
 }

@@ -28,6 +28,8 @@
 #include <filesystem>
 #include "../Includes/Server_Data.hpp"
 #include "../Includes/ConfigParser.hpp"
+#include <sys/stat.h>
+
 
 
 static std::string name_file = "out";
@@ -156,6 +158,7 @@ class Client {
         void readFile(std::string file);
         void remove_directory_file(const std::string& name);
         std::string parseFile(std::string f);
+        bool isDirectory(const char* path);
         // void parse_headers(std::string headersCgi);
 
         /**********************************/

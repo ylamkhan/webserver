@@ -137,13 +137,12 @@
 void Client::open_file()
 {
     Location loc = servers[sindex].getLocations()[lindex];
-    std::cout<<loc.getLocationPath()<<"************\n";
     if(servers[sindex].getLocations()[lindex].getUpload() == "ON")
     {
         std::map<std::string, std::string >::iterator it;
         it = headers.find("Content-Type");
         if( it != headers.end())
-        {  
+        {
             value_type  = it->second;
         }
         store_type();
@@ -154,25 +153,16 @@ void Client::open_file()
         {
             extension = at->second;
         }
-        if (loc.getCgi().size())
-        {
-            std::cout<<value_type<<"*_______\n";
-            if (checkforCgi(extension) && !cgiflag)
-            {
-                // tmpfilename = "Srcs/upload/tmpfile" + extension;
-                // tmpfile.open(n.c_str(), std::ios:app);
-                cgiflag = true;
-                //cgi(getUrl);
-            }
-        }
-        std::cout<<extension<<"::::\n";
+        
         std::string name;
         if (!flag_open)
         {
             name_file += "t";
             //hada khasna nmshoh bidina mni nsaliw
-            name = "Srcs/upload/tmpfile" + extension;  
+            name = "./Srcs/upload/" + name_file + extension; 
             file.open(name.c_str(), std::ios::app);
+            
+            // exit(111);
             flag_open = true;
         }
         status =  201;
@@ -188,8 +178,46 @@ void Client::open_file()
      
 }
 
+bool Client::isDirectory(const char* path) {
+    struct stat pathStat;
+    if (stat(path, &pathStat) == 0) {
+        return S_ISDIR(pathStat.st_mode);
+    } else {
+        std::cerr << "Error: Unable to get file information" << std::endl;
+        return false; // Error occurred, assuming it's not a directory
+    }
+}
+
 void Client::post()
 {
+    //if(url == file)
+    //-----if(fileiscgi)
+    //------------------callcgi();
+    //----else
+    //------------------exit+message+fdffdffd;
+    //else 
+    // std::cout<<reqURL<<"\n";
+    if (!isDirectory(("./Srcs/" + reqURL).c_str()))
+    {
+        Location loc = servers[sindex].getLocations()[lindex];
+        if (loc.getCgi().size())
+        {
+            size_t t = reqURL.rfind(".");
+            if(t != std::string::npos)
+                type = reqURL.substr(t);
+            if (checkforCgi(type))
+            {
+                std::cout<<body<<"\n";
+                file.write(body.c_str(), body.size());
+                file.close();
+                cgi("./Srcs/" + reqURL);
+                cgiflag = true;
+                flag_in_out = true;
+                return ;
+            }
+        }
+
+    }
     std::map<std::string, std::string >::iterator it;
     it = headers.find("Transfer-Encoding");
     if( it != headers.end())
@@ -254,7 +282,7 @@ void Client::post()
                 flag_in_out = true;
                 file.close();
                 if (cgiflag)
-                    cgi("Srcs/upload/tmpfile.py");
+                    cgi(url);
                 return;
             }
        
@@ -288,13 +316,13 @@ void Client::post()
         file.write(body.c_str(), body.size());
         if(bodySize   >= (size_t)atoi(headers["Content-Length"].c_str()))
         {
-            
+            std::cout<<body<<"*-+-*-+\n";
             file.write(body.c_str(), body.size());
             flag_in_out = true;
             file.close();
             //zizoooooooooooooooooooooooooo
             if (cgiflag)
-                cgi("Srcs/upload/tmpfile.py");
+                cgi("./Srcs/" + reqURL);
             return;
         }
 

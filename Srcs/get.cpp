@@ -239,6 +239,7 @@ void Client::get()
                 for (size_t i = 0; i < loc.getIndex().size(); i++)
                 {
                     getUrl = url;
+                    std::cout<<url<<"::::::\n";
                     if (url[url.size()-1] != '/')
                         getUrl += "/";
                     getUrl += loc.getIndex()[i];

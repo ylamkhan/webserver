@@ -37,6 +37,7 @@ Client::Client(std::vector<Server> &servers):servers(servers)
     type = "";
     cgiUrl = "";
     getUrl = "";
+    reqURL = "";
     status = 200;
     can_open = false;
 }
@@ -45,6 +46,7 @@ Client::~Client() {}
 
 Client &Client::operator=(Client const &other)
 {
+    reqURL = other.reqURL;
     isCgi = other.isCgi;
     closed = other.closed;
     listing = other.listing;

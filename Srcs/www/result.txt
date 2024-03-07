@@ -1,17 +1,14 @@
+Set-Cookie: user=John%20Doe; expires=Thu, 07-Mar-2024 01:40:36 GMT; Max-Age=3600; path=/
 Content-type: text/html; charset=UTF-8
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Addition</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submitted Data</title>
 </head>
 <body>
-    <form method="post" action="">
-        <label>Enter the first number:</label>
-        <input type="text" name="num1"><br><br>
-        <label>Enter the second number:</label>
-        <input type="text" name="num2"><br><br>
-        <input type="submit" name="submit" value="Add">
-    </form>
-    </body>
+    <h2>Submitted Data</h2>
+    <p>Name: m1</p><p>Email: smbsaoud@gmail.com</p></body>
 </html>
