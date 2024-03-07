@@ -342,14 +342,21 @@ void Client::send_client()
         //poooooost ghalta ... rah dik ok ghe f succes;
         std::string msg;
         std::string response;
-        if(status == 201)
-        {
-            msg = "Sucess ";
-            response = "HTTP/1.1 200 OK \r\nContent-Type: text/html\r\n\r\n<html><body><h1>" + msg + "</h1></body></html>\r\n";
-
-        }
-        else 
-            msg = "Failed";
+           if (status == 201)
+            {
+                msg = "Success";
+                response = "HTTP/1.1 201 Created\r\nContent-Type: text/html\r\n\r\n";
+            }
+            else if (status == 404) // ask someone ;
+            {
+                msg = "Not Found";
+                response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n";
+            }
+            else
+            {
+                msg = "Internal Server Error";
+                response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\n\r\n";
+            }
         write(sockfd, response.c_str(), response.size());
         close(sockfd);
         closed = true;

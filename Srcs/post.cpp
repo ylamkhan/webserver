@@ -173,6 +173,7 @@ void Client::open_file()
     {
         status =  404;
         message = "404 Not Found";
+        flag_in_out = true;
     }
    
      

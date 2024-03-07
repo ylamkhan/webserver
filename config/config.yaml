@@ -30,7 +30,7 @@ servers:
         root: www
         upload: ON
         methods: [GET]
-        list: OFF
+        list: ON
         autoindex: on
 
   - listen:

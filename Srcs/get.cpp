@@ -232,6 +232,7 @@ void Client::get()
     Location loc = servers[sindex].getLocations()[lindex];
     if (isDir)
     {
+
         if (loc.getAutoIndex())
         {
             if (loc.isIndexSet())
@@ -284,7 +285,6 @@ void Client::get()
         }
         else
         {
-
             if(loc.getList() == "ON")
             {
                 listing = true;
@@ -302,6 +302,8 @@ void Client::get()
     }
     else if (isFile)
     {
+                    std::cout << " hahahahaha\n";
+
         size_t t = url.rfind(".");
         if(t != std::string::npos)
             type = url.substr(t);
