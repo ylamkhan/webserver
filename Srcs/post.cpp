@@ -172,9 +172,9 @@ void Client::open_file()
     else
     {
         status =  404;
-        message = "404 not found ?????????????????";
+        message = "404 Not Found";
     }
- 
+   
      
 }
 
@@ -190,6 +190,7 @@ bool Client::isDirectory(const char* path) {
 
 void Client::post()
 {
+
     //if(url == file)
     //-----if(fileiscgi)
     //------------------callcgi();
@@ -281,8 +282,6 @@ void Client::post()
                 file.write(body.c_str(), body.size());
                 flag_in_out = true;
                 file.close();
-                if (cgiflag)
-                    cgi(url);
                 return;
             }
        
@@ -304,8 +303,6 @@ void Client::post()
                 flag_in_out = true;
                 file.close();
                 //zizoooooooooooooooooooooooooo
-                if (cgiflag)
-                    cgi("Srcs/upload/tmpfile.py");
                 return;
             }
         }
@@ -316,13 +313,11 @@ void Client::post()
         file.write(body.c_str(), body.size());
         if(bodySize   >= (size_t)atoi(headers["Content-Length"].c_str()))
         {
-            std::cout<<body<<"*-+-*-+\n";
             file.write(body.c_str(), body.size());
             flag_in_out = true;
             file.close();
             //zizoooooooooooooooooooooooooo
-            if (cgiflag)
-                cgi("./Srcs/" + reqURL);
+
             return;
         }
 

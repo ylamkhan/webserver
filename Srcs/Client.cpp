@@ -19,6 +19,7 @@ Client::Client(std::vector<Server> &servers):servers(servers)
 {
     sindex = 0;
     lindex = 0;
+    Permissions = 0;
     flag_in_out = false;
     isCgi = false;
     cgiflag = false;
@@ -89,6 +90,7 @@ Client &Client::operator=(Client const &other)
     message = other.message;
     status = other.status;
     hcgi = other.hcgi;
+    Permissions = other.Permissions;
     return *this;
 }
 
@@ -339,11 +341,15 @@ void Client::send_client()
     {
         //poooooost ghalta ... rah dik ok ghe f succes;
         std::string msg;
+        std::string response;
         if(status == 201)
+        {
             msg = "Sucess ";
+            response = "HTTP/1.1 200 OK \r\nContent-Type: text/html\r\n\r\n<html><body><h1>" + msg + "</h1></body></html>\r\n";
+
+        }
         else 
             msg = "Failed";
-        std::string response = "HTTP/1.1 200 OK \r\nContent-Type: text/html\r\n\r\n<html><body><h1>" + msg + "</h1></body></html>\r\n";
         write(sockfd, response.c_str(), response.size());
         close(sockfd);
         closed = true;

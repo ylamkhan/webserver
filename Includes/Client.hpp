@@ -6,6 +6,8 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <sys/stat.h>
+
 // typename check if ... 
 #include <map>
 #include <fstream>
@@ -102,6 +104,7 @@ class Client {
         bool can_open;
         bool isCgi;
         std::string headersCgi;
+        int Permissions;
 
     public:
         Client(){};
