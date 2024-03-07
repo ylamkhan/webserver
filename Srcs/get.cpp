@@ -302,13 +302,14 @@ void Client::get()
     }
     else if (isFile)
     {
-                    std::cout << " hahahahaha\n";
 
         size_t t = url.rfind(".");
         if(t != std::string::npos)
             type = url.substr(t);
+        std::cout<<loc.getLocationPath() <<"--\n";
         if (loc.getCgi().size())
         {
+                    std::cout << " hahahahaha\n";
             if (checkforCgi(type) && !cgiflag)
             {
                 getUrl = (url.substr(0,url.find_last_of('/')+1) + "result.txt");

@@ -11,6 +11,10 @@ servers:
     methods: [GET, POST, DELETE]
     return: https://google.com
     index: [index.html, index1.html]
+    cgi_paths:
+      - [.py, /usr/bin/python3]
+      - [.php, /usr/bin/php-cgi]
+      - [.sh, /usr/bin/bash]
 
     locations:
       - path: /static/webservj
@@ -23,6 +27,10 @@ servers:
         error_pages:
           - 404: /error_pages/404.html
           - 500: /error_pages/500.html
+        cgi_paths:
+          - [.py, /usr/bin/python3]
+          - [.php, /usr/bin/php-cgi]
+          - [.sh, /usr/bin/bash]
         proxy_read_timeout: 5s
         return: https://google.com
 
@@ -30,8 +38,12 @@ servers:
         root: www
         upload: ON
         methods: [GET]
-        list: ON
+        list: OFF
         autoindex: on
+        cgi_paths:
+          - [.py, /usr/bin/python3]
+          - [.php, /usr/bin/php-cgi]
+          - [.sh, /usr/bin/bash]
 
   - listen:
     server_name: zineb
@@ -66,7 +78,7 @@ servers:
         root: www/uploads
         methods: [DELETE]
         list: ON
-        upload: ON
+        upload: On
         autoindex: on
 
       - path: "/downloads"

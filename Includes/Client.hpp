@@ -46,10 +46,10 @@ class Client {
         std::string tmpfilename;
         std::ifstream a_file;
         std::string url;
-        std::pair<std::string, std::string> hcgi;
         DIR *dir;
 
         std::vector<Server> servers;
+        std::vector<std::pair<std::string, std::string> > cookies;
 
         bool flag_open;
         bool flag_in_out;
@@ -105,6 +105,7 @@ class Client {
         bool isCgi;
         std::string headersCgi;
         int Permissions;
+        std::string content_type;
 
     public:
         Client(){};
@@ -162,7 +163,7 @@ class Client {
         void remove_directory_file(const std::string& name);
         std::string parseFile(std::string f);
         bool isDirectory(const char* path);
-        // void parse_headers(std::string headersCgi);
+        void parse_header(std::string headersCgi);
 
         /**********************************/
 };

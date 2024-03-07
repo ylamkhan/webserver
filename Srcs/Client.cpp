@@ -39,6 +39,7 @@ Client::Client(std::vector<Server> &servers):servers(servers)
     cgiUrl = "";
     getUrl = "";
     reqURL = "";
+    content_type = "";
     status = 200;
     can_open = false;
 }
@@ -47,6 +48,8 @@ Client::~Client() {}
 
 Client &Client::operator=(Client const &other)
 {
+    content_type = other.content_type;
+    cookies = other.cookies;
     reqURL = other.reqURL;
     isCgi = other.isCgi;
     closed = other.closed;
@@ -89,7 +92,6 @@ Client &Client::operator=(Client const &other)
     lindex = other.lindex;
     message = other.message;
     status = other.status;
-    hcgi = other.hcgi;
     Permissions = other.Permissions;
     return *this;
 }
@@ -237,21 +239,22 @@ void Client::setflagResponse(bool t)
 //     return f;
 // }
 
-// void Client::parse_headers(std::string headersCgi)
-// {
-//     // std::istringstream iss(headersCgi);
-//     // while (1)
-//     // { 
-//     //     std::getline(iss,hcgi.first,':');
-//     //     std::getline(iss,hcgi.second,';');
-//     //     if (hcgi.first == "Content-type")
-//     //         Content_typa = ltrim(hcgi.second);
-//     //     std::string temp;
-//     //     iss >>temp;
-//     //     if(temp.empty())
-//     //         break;
-//     // }
-// }
+void Client::parse_header(std::string headersCgi)
+{
+    std::istringstream iss(headersCgi);
+    std::string line;
+    while (std::getline(iss, line)) {
+        if (line.substr(0, 11) == "Set-Cookie:") {
+            size_t pos = line.find("=");
+            std::string name = line.substr(12, pos - 12);
+            size_t end_pos = line.find("; expires=");
+            std::string value = line.substr(pos + 1, end_pos - pos - 1);
+            cookies.push_back(std::make_pair(name, value));
+        }else if (line.substr(0, 13) == "Content-type:") {
+            content_type = line.substr(14, line.rfind(";")-14);
+        }
+    }
+}
 
 void Client::send_client()
 {
@@ -301,8 +304,15 @@ void Client::send_client()
                 {
                     headersCgi = s.substr(0, s.find("\r\n\r\n"));
                     s = s.substr(s.find("\r\n\r\n")+4);
-                    //parse_headers(headersCgi);
-                    Content_typa = "text/html";
+                    parse_header(headersCgi);
+                    // std::cout<<"------------------------------------------------------------------------------------------------------------------------\n";
+                    // for (size_t i = 0; i < cookies.size(); i++) {
+                    //     std::cout << "Name: " << cookies[i].first << std::endl;
+                    //     std::cout << "Value: " << cookies[i].second << std::endl;
+                    // }
+                    // std::cout<<";;"<<content_type<<";;\n";
+                    // std::cout<<"------------------------------------------------------------------------------------------------------------------------\n";
+                    Content_typa = content_type;
                 }
                 if (!flagResponse)
                 {
@@ -339,22 +349,22 @@ void Client::send_client()
     }
     else if (method == "POST")
     {
-        //poooooost ghalta ... rah dik ok ghe f succes;
-        std::string msg;
         std::string response;
            if (status == 201)
             {
-                msg = "Success";
                 response = "HTTP/1.1 201 Created\r\nContent-Type: text/html\r\n\r\n";
             }
-            else if (status == 404) // ask someone ;
+            else if (status == 403)
             {
-                msg = "Not Found";
+                response = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\r\n\r\n";
+                
+            }
+            else if (status == 404) 
+            {
                 response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n";
             }
             else
             {
-                msg = "Internal Server Error";
                 response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\n\r\n";
             }
         write(sockfd, response.c_str(), response.size());
@@ -384,6 +394,14 @@ void Client::send_client()
     {
         closed = true;
         close(sockfd);
+    }
+    else 
+    {
+        std::string msg = "Method Not Implemented";
+        std::string response = "HTTP/1.1 501 Not Implemented\r\nContent-Type: text/plain\r\n\r\n" + msg + "\r\n";
+        write(sockfd, response.c_str(), response.size());
+        close(sockfd);
+        closed = true;
     }
 }
 
