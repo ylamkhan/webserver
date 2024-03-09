@@ -31,21 +31,17 @@ void Client::remove_directory_file(const std::string& name)
                         if (std::remove(full_path.c_str()) == 0) 
                         {
                             status = 204;
-                            message = "204 NO Content";
+                            message = "204 NO Content";//
                         } 
-                        else 
-                        {
-                            flag_in_out = true; ////// ?
-                        }
+                       
                     }
                     else
-                        {
-                            status = 404;
-                            message = "404 Not Found";
-                            flag_in_out = true;
-                            /////
-                        }
-                }
+                    {
+                        status = 404;
+                        message = "404 Not Found";
+                        /////
+                    }
+            }
                 }
             }
 
@@ -56,6 +52,7 @@ void Client::remove_directory_file(const std::string& name)
                 status = 204;
                 message = "204 NO Content";
                 flag_in_out = true;
+                return;
             }
             else
             {
@@ -68,12 +65,14 @@ void Client::remove_directory_file(const std::string& name)
                         status = 500;
                         message = "500 Internal Server Error";
                         flag_in_out = true;
+                        return;
                     }
                     else 
                     {
                         status = 403;
                         message = "403 Forbiden";
                         flag_in_out = true;
+                        return;
                     }
                 }
 
@@ -90,7 +89,9 @@ void Client::remove_directory_file(const std::string& name)
                 if (std::remove(name.c_str()) == 0)
                 {
                     status = 204;
+                    message = "204 NO Content";
                     flag_in_out = true;
+                    return;
                 }
             }
     }        

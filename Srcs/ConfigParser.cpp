@@ -6,6 +6,12 @@ ConfigParser::ConfigParser(std::string file)
     parseConfig(file);
 }
 
+ConfigParser &ConfigParser::operator=(const ConfigParser &c)
+{
+    servers = c.servers;
+    return (*this);
+}
+
 bool ConfigParser::isEmptyLine(const std::string& line)
 {
     return line.find_first_not_of(" \t\n") == std::string::npos;

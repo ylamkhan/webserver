@@ -65,7 +65,7 @@ void    Client::parseRequest(const std::string& httpRequest)
         }
         if (!is_req_well_formed())
         {
-            Response();
+            // Response();
             flag_in_out = true;
             return ;
         }
@@ -102,6 +102,7 @@ void    Client::parseRequest(const std::string& httpRequest)
     {
         if(!matching_servers())
         {
+            std::cout<<"oooooooooooooooooooooooooooo\n";
             flag_in_out = true;
             status = 404;
             message = "404 Not Found";
@@ -115,11 +116,12 @@ void    Client::parseRequest(const std::string& httpRequest)
             flag_in_out = true;
             return;
         }
+        std::cout<<method<<"***\n";
         if(!checkMethod())
         {
             flag_in_out = true;
-            message = "501 Not Impelemnted.";
-            status = 501;
+            message = "405 Method Not Allowed";
+            status = 405;
             return ;
         }
         handl_methodes();
@@ -144,6 +146,7 @@ int Client::checkMethod()
     {
         for (size_t i = 0; i < methods.size(); i++)
         {
+            std::cout<<methods.size()<<"---\n";
             if (getMethodIndex(method) == methods[i])
                 return 1;
         }
@@ -166,14 +169,14 @@ int Client::is_req_well_formed()
     iter_map it = headers.find("Transfer-Encoding");
     if(it != headers.end() && method == "POST" && it->second != "chunked")
     {
-        message = "501 Not Impelemnted.";
+        message = "501 Not Implemented";
         status = 501;
         return 0;  
     }
     iter_map it1 = headers.find("Content-Length");
     if(method == "POST" && it == headers.end() && it1 == headers.end())
     {
-        message = "400 Bad Requeset.";
+        message = "400 Bad Request";
         status = 400;
         return 0;
     }
@@ -182,14 +185,14 @@ int Client::is_req_well_formed()
     std::size_t found1 = query.find_first_not_of(allowedChars);
     if((!path.empty() && found != std::string::npos) || (!query.empty() && found1 != std::string::npos))
     {
-        message = "400 Bad Requeset.";
+        message = "400 Bad Request";
         status = 400;
         return 0;
     }
     if(path.length() + query.length() > 2048)
     {
-        message = "414 Requeset-URL Too Long.";
-        status = 400;
+        message = "414 Request-URL Too Long";
+        status = 414;
         return 0;
     }
 
@@ -197,7 +200,7 @@ int Client::is_req_well_formed()
     {
         if((size_t)atoi(it1->second.c_str()) > servers[sindex].getMaxClientBodySize() && servers[sindex].getMaxClientBodySize() != 0)
         {
-            message = "414 Requeset Entity Too Long.";
+            message = "413 Request Entity Too Large";
             status = 413;
             return 0;
         }

@@ -9,7 +9,6 @@ servers:
       - 500: /error_pages/500.html
     autoindex: on
     methods: [GET, POST, DELETE]
-    return: https://google.com
     index: [index.html, index1.html]
     cgi_paths:
       - [.py, /usr/bin/python3]
@@ -17,27 +16,26 @@ servers:
       - [.sh, /usr/bin/bash]
 
     locations:
-      - path: /static/webservj
+      - path: /loc
         root: www
         list: ON
-        upload: ON
+        upload: OFF
         autoindex: ON
-        methods: [GET]
-        index: [p.py]
+        methods: [GET, POST]
+        index: [index.html]
         error_pages:
           - 404: /error_pages/404.html
-          - 500: /error_pages/500.html
+          - 501: /error_pages/501.html
         cgi_paths:
           - [.py, /usr/bin/python3]
           - [.php, /usr/bin/php-cgi]
           - [.sh, /usr/bin/bash]
         proxy_read_timeout: 5s
-        return: https://google.com
 
       - path: /
         root: www
         upload: OFF
-        methods: [GET]
+        methods: [GET, POST]
         list: OFF
         autoindex: on
         cgi_paths:

@@ -11,8 +11,6 @@ void Client::cgi(std::string u)
     std::string a = "CONTENT_LENGTH=" + headers["Content-Length"];
     std::string b = "CONTENT_TYPE=" + headers["Content-Type"];
     std::string c = "PATH_TRANSLATED=" + u.substr(u.rfind('/')+1);
-    // std::string c = "PATH_TRANSLATED=" + u;
-    std::cout<<"path trans : " << c<< "\n";
     std::string d = "REQUEST_METHOD=" + method;
     std::string e = "QUERY_STRING=" + query;
     std::string f = "REDIRECT_STATUS=CGI";

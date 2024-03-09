@@ -114,7 +114,12 @@ class Client {
         Client &operator=(Client const &other);
         Client(Client const &other);
 
-
+        void    sendGet();
+        void    ft_read(int error_code, std::string ppppath);
+        void    readDefault();
+        void    readPage();
+        void sendPost();
+        void sendDelete();
         bool get_flag_in_out() const;
         void cgi(std::string u);
         int getSocket() const;
@@ -164,6 +169,8 @@ class Client {
         std::string parseFile(std::string f);
         bool isDirectory(const char* path);
         void parse_header(std::string headersCgi);
+        void    ft_open(std::string opath);
+
 
         /**********************************/
 };

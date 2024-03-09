@@ -170,6 +170,7 @@ void Location::setIMethods(int i) {
 }
 
 void Location::setErrorPages(int code, std::string page) {
+
     error_pages[code] = page;
 }
 

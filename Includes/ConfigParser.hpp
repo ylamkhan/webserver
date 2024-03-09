@@ -15,6 +15,7 @@ class ConfigParser {
     public:
         ConfigParser() {};
         ConfigParser(std::string file);
+        ConfigParser &operator=(const ConfigParser &c);
         void parseConfig(std::string file);
         bool isEmptyLine(const std::string &line);
         void fillServers(std::vector<std::string> lines);

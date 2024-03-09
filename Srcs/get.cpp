@@ -81,6 +81,8 @@ void Client::get()
                             cgiflag = true;
                             cgi(getUrl);
                             flag_in_out = true;
+                            status = 200;
+                            message = "200 OK";
                             break;
                         }
                     }
@@ -88,6 +90,8 @@ void Client::get()
                     if (a_file.is_open())
                     {
                         flag_in_out = true;
+                        status = 200;
+                        message = "200 OK";
                         break;
                     }
                     else
@@ -96,12 +100,14 @@ void Client::get()
                         {
                             listing = true;
                             flag_in_out = true;
+                            status = 200;
+                            message = "200 OK";
                             return ;
                         }
                         else
                         {
-                            message = "404 Not Found";
-                            status = 404;
+                            message = "403 Forbidden";
+                            status = 403;
                             flag_in_out = true;
                             return ;
                         
@@ -119,8 +125,8 @@ void Client::get()
             }
              else
             {
-                message = "404 Not Found";
-                status = 404;
+                message = "403 Forbidden";
+                status = 403;
                 flag_in_out = true;
                 return ;
             
@@ -149,10 +155,14 @@ void Client::get()
             getUrl = url;
         }
         flag_in_out = true;
+        status = 200;
+        message = "200 OK";
+
     }
     else
     {
-        std::cout << "ma dir ma file\n";
+    
+        std::cout << "ma dir ma file\n"; //////////////////? 
     }
 }
 
